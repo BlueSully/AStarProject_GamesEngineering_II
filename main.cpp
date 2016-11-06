@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 	Game* game = new Game();
 
 	//Adjust screen positions as needed
-	game->Initialize("AStar Threading",300,100,800,600, SDL_WINDOW_SHOWN);
+	game->Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
 	DEBUG_MSG("Game Init Successful");
 
 	while(game->IsRunning())

@@ -2,6 +2,7 @@
 #define GAME_H
 #include "Debug.h"
 #include <SDL.h>
+#include "Grid.h"
 
 class Game
 {
@@ -18,6 +19,8 @@ public:
 	void CleanUp();
 private:
 	bool m_running;
+	Grid g1;
+
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
 	SDL_Texture* m_p_Texture;

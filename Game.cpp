@@ -60,9 +60,9 @@ void Game::LoadContent()
 
 void Game::Render()
 {
-	SDL_RenderClear(m_p_Renderer);
 	SDL_SetRenderDrawColor(m_p_Renderer, 0, 0, 0, 255);
-
+	SDL_RenderClear(m_p_Renderer);
+	g1.render(m_p_Renderer);
 	SDL_RenderPresent(m_p_Renderer);
 }
 

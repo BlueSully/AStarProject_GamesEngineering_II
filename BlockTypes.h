@@ -3,6 +3,6 @@
 
 enum class BlockType
 {
-	WALL,
-	FLOOR
+	FLOOR,
+	WALL
 };
