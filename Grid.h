@@ -5,11 +5,13 @@
 class Grid
 {
 private:
-	Block tester[30];
-// an 2d array each element will hold an array of a certain size and fill them in
-	// array[0] = {1,2,3,4,5,6,7,8,9,10};
+	static const int arrayX = 30;
+	static const int arrayY = 30;
+	Block tester[arrayX][arrayY];
+
 public:
 	Grid();
+	void init(Vector2 WinSize);
 	~Grid();
 
 	void Update();

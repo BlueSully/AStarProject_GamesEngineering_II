@@ -13,7 +13,7 @@ Game::~Game()
 {
 }
 
-bool Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags)
+bool Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
 	if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
 	{
@@ -23,7 +23,9 @@ bool Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 		if(m_p_Window != 0)
 		{
 			DEBUG_MSG("Window creation success");
-			m_p_Renderer = SDL_CreateRenderer(m_p_Window, -1, 0);
+			m_p_Renderer = SDL_CreateRenderer(m_p_Window, -1, SDL_RENDERER_ACCELERATED);
+			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
+			SDL_RenderSetLogicalSize(m_p_Renderer, width * 2, height * 2);
 			if(m_p_Renderer != 0)
 			{
 				DEBUG_MSG("Renderer creation success");
@@ -47,7 +49,7 @@ bool Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 		return false;
 	}
 	m_running = true;
-
+	g1.init(Vector2(width, height));
 	return true;
 }
 

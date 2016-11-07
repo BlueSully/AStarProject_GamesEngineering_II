@@ -52,6 +52,9 @@ void Block::render(SDL_Renderer * render)
 	SDL_SetRenderDrawColor(render, m_colour.r, m_colour.g, m_colour.b, m_colour.a);
 	SDL_RenderFillRect(render, &m_rectangle);
 
+	SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
+	SDL_RenderDrawRect(render, &m_rectangle);
+
 }
 
 Block::~Block()
