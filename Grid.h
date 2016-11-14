@@ -7,8 +7,8 @@
 class Grid
 {
 private:
-	static const int arraysize = 30;
-	Block tester[arraysize][arraysize];
+	vector<Block> m_blockList;
+	int m_numberWalls;
 
 public:
 	Grid();

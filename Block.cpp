@@ -5,17 +5,18 @@ Block::Block()
 
 }
 
-void Block::Update()
+Block::~Block()
 {
+
 }
 
-void Block::Init(float posX, float posY, float width, float height, int type)
+void Block::Init(float posX, float posY, float width, float height, BlockType type)
 {
 	m_rectangle.pos.x = posX;
 	m_rectangle.pos.y = posY;
 	m_rectangle.size.w = width;
 	m_rectangle.size.h = height;
-	m_type = static_cast<BlockType>(type);
+	m_type = type;
 	initializeColour();
 }
 
@@ -27,9 +28,19 @@ void Block::initializeColour()
 		m_colour = { 0, 0, 0, 255 };
 		break;
 	case BlockType::FLOOR:
-		m_colour = { 255, 255, 0, 255 };
+		m_colour = { 200, 200, 200, 255 };
 		break;
 	}
+}
+
+void Block::Update()
+{
+
+}
+
+void Block::render(Renderer * r)
+{
+	r->drawWorldFillRect(m_rectangle, m_colour);
 }
 
 Point2D Block::getPosition() const
@@ -42,18 +53,17 @@ Size2D Block::getSize() const
 	return Size2D(m_rectangle.size.w, m_rectangle.size.h);
 }
 
-bool Block::isBlockWall() const
+BlockType Block::getType() const
 {
-	return m_isWall;
+	return m_type;
 }
 
-void Block::render(Renderer * r)
+void Block::setType(BlockType val)
 {
-	r->drawWorldFillRect(m_rectangle, m_colour);
-	r->drawWorldRect(m_rectangle, Colour(0, 255, 0));
+	m_type = val;
 }
 
-Block::~Block()
+void Block::setColour(Colour val)
 {
-
+	m_colour = val;
 }

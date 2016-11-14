@@ -1,4 +1,7 @@
+
 #pragma once
+
+#include <iostream>
 
 class Point2D {
 public:

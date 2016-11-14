@@ -89,6 +89,7 @@ xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Anthony O%27Sullivan\Desktop\AstarThreading\Player.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Grid.cpp" />
@@ -96,6 +97,7 @@ xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
     <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Anthony O%27Sullivan\Desktop\AstarThreading\Player.h" />
     <ClInclude Include="BasicTypes.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="BlockTypes.h" />

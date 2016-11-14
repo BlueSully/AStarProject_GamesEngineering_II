@@ -15,25 +15,28 @@ Game::~Game()
 
 bool Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
-	Size2D winSize(800, 600);
-	//Define some basic types needed for 2D graphics
+	srand(static_cast<unsigned int>(time(NULL)));
 
+	Size2D winSize(800, 600);
+
+	//How many Blocks wide is the blocks
 	float vpWidth = 30;
+
 	//creates our renderer, which looks after drawing and the window
 	m_renderer.init(winSize, "Astar Threading");
 
-	//set up the viewport
-	//we want the vp centred on origin and 20 units wide
+
 	float aspectRatio = winSize.w / winSize.h;
 	Size2D vpSize(vpWidth, vpWidth / aspectRatio);
 	Point2D vpBottomLeft(-vpSize.w / 2, -vpSize.h / 2);
 
+	//set up the viewport
 	Rect vpRect(vpBottomLeft, vpSize);
 	m_renderer.setViewPort(vpRect);
 
 	m_running = true;
 
-	g1.init(vpWidth, winSize);
+	g1.init(static_cast<int>(vpWidth), vpSize);
 
 	return true;
 }
@@ -50,6 +53,11 @@ void Game::Render()
 	m_renderer.present();
 }
 
+void Game::Reset()
+{
+	cout << "Reset Called" << endl;
+}
+
 void Game::Update()
 {
 
@@ -61,29 +69,35 @@ void Game::HandleEvents()
 
 	while (SDL_PollEvent(&event))
 	{
-		switch(event.type)
-			case SDL_KEYDOWN:
-				switch(event.key.keysym.sym)
-				{
-				case SDLK_ESCAPE:
-					m_running = false;
-					break;
-				case SDLK_UP:
+		switch (event.type)
+		{
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_ESCAPE:
+				m_running = false;
+				break;
+			case SDLK_r:
+				
+				break;
+			default:
 
-					break;
-				case SDLK_DOWN:
+				break;
+			}
+		case SDL_KEYUP:
+			switch (event.key.keysym.sym)
+			{
+			case SDLK_ESCAPE:
+				m_running = false;
+				break;
+			case SDLK_r:
+		
+				break;
+			default:
 
-					break;
-				case SDLK_LEFT:
-
-					break;
-				case SDLK_RIGHT:
-
-					break;
-				default:
-					
-					break;
-				}
+				break;
+			}
+		}
 	}
 }
 

@@ -10,7 +10,6 @@ private:
 	// Holds Position of Block on Screen
 	Rect m_rectangle;
 	Colour m_colour;
-	bool m_isWall;
 	BlockType m_type;
 
 public:
@@ -18,10 +17,14 @@ public:
 	~Block();
 
 	void Update();
-	void Init(float posX, float posY, float width, float height, int type);
+	void Init(float posX, float posY, float width, float height, BlockType type);
 	void initializeColour();
+	void render(Renderer* render);
+
 	Point2D getPosition() const;
 	Size2D getSize() const;
-	bool isBlockWall() const;
-	void render(Renderer* render);
+	void setType(BlockType val);
+	BlockType getType() const;
+	void setColour(Colour val);
+
 };
