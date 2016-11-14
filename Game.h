@@ -3,6 +3,7 @@
 #include "Debug.h"
 #include <SDL.h>
 #include "Grid.h"
+#include "Renderer.h"
 
 class Game
 {
@@ -20,6 +21,8 @@ public:
 private:
 	bool m_running;
 	Grid g1;
+
+	Renderer m_renderer;
 
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;

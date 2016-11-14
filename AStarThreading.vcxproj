@@ -50,9 +50,17 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SDL_SDK)\lib\x86;$(SDL_IMAGE_SDK)\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SDL_SDK)\lib\x86\SDL2.dll" "$(TargetDir)" /e /y /i
+xcopy "$(SDL_IMAGE_SDK)\lib\x86\libpng16-16.dll" "$(TargetDir)" /e /y /i
+xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
+
+
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -61,29 +69,40 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SDL_SDK)\include;$(SDL_IMAGE_SDK)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>$(SDL_SDK)\lib\x86;$(SDL_IMAGE_SDK)\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SDL_SDK)\lib\x86\SDL2.dll" "$(TargetDir)" /e /y /i
+xcopy "$(SDL_IMAGE_SDK)\lib\x86\libpng16-16.dll" "$(TargetDir)" /e /y /i
+xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
+
+
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Vector2.cpp" />
+    <ClCompile Include="Renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BasicTypes.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="BlockTypes.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="Vector2.h" />
+    <ClInclude Include="Renderer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

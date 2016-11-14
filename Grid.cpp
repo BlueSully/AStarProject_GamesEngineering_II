@@ -6,24 +6,16 @@ Grid::Grid()
 
 }
 
-void Grid::init(Vector2 WinSize)
+void Grid::init(int worldsize, Size2D windowResolution)
 {
-	float sizex = static_cast<float>(WinSize.x / arrayX) * 2;
-	float sizey = static_cast<float>(WinSize.y / arrayY) * 1.999f;
+	float sizeX = static_cast<float>(worldsize / arraysize);
+	float sizeY = static_cast<float>(worldsize / arraysize) / windowResolution.h;
 
-	for (size_t i = 0; i < arrayX; i++)
+	for (size_t i = 0; i < arraysize; i++)
 	{
-		for (size_t j = 0; j < arrayY; j++)
+		for (size_t j = 0; j < arraysize; j++)
 		{
-			if (j % 3 == 0) 
-			{
-				//sizex = (static_cast<float>((WinSize.x / arrayX)-1) * 2) ;
-				tester[i][j].Init((sizex * j) - 0.75f, (sizey * i), sizex, sizey, 0);
-			}
-			else 
-			{
-				tester[i][j].Init((sizex * j), (sizey * i), sizex, sizey, 0);
-			}
+			tester[i][j].Init((sizeX * j), (sizeY * i), sizeX, sizeY, 0);
 		}
 	}
 }
@@ -36,11 +28,11 @@ void Grid::Update()
 {
 }
 
-void Grid::render(SDL_Renderer * render)
+void Grid::render(Renderer * render)
 {
-	for (size_t i = 0; i < arrayX; i++)
+	for (size_t i = 0; i < arraysize; i++)
 	{
-		for (size_t j = 0; j < arrayY; j++)
+		for (size_t j = 0; j < arraysize; j++)
 		{
 			tester[i][j].render(render);
 		}

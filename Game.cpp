@@ -15,45 +15,28 @@ Game::~Game()
 
 bool Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
-	if(SDL_Init(SDL_INIT_EVERYTHING) == 0)
-	{
-		DEBUG_MSG("SDL Init success");
-		m_p_Window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
+	Size2D winSize(800, 600);
+	//Define some basic types needed for 2D graphics
 
-		if(m_p_Window != 0)
-		{
-			DEBUG_MSG("Window creation success");
-			m_p_Renderer = SDL_CreateRenderer(m_p_Window, -1, SDL_RENDERER_ACCELERATED);
-			SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");  // make the scaled rendering look smoother.
-			SDL_RenderSetLogicalSize(m_p_Renderer, width * 2, height * 2);
-			if(m_p_Renderer != 0)
-			{
-				DEBUG_MSG("Renderer creation success");
-				SDL_SetRenderDrawColor(m_p_Renderer, 0, 0, 0, 255);
-			}
-			else
-			{
-				DEBUG_MSG("Renderer init fail");
-				return false;
-			}
-		}
-		else
-		{
-			DEBUG_MSG("Window init fail");
-			return false;
-		}
-	}
-	else
-	{
-		DEBUG_MSG("SDL init fail");
-		return false;
-	}
+	float vpWidth = 30;
+	//creates our renderer, which looks after drawing and the window
+	m_renderer.init(winSize, "Astar Threading");
+
+	//set up the viewport
+	//we want the vp centred on origin and 20 units wide
+	float aspectRatio = winSize.w / winSize.h;
+	Size2D vpSize(vpWidth, vpWidth / aspectRatio);
+	Point2D vpBottomLeft(-vpSize.w / 2, -vpSize.h / 2);
+
+	Rect vpRect(vpBottomLeft, vpSize);
+	m_renderer.setViewPort(vpRect);
+
 	m_running = true;
-	g1.init(Vector2(width, height));
+
+	g1.init(vpWidth, winSize);
+
 	return true;
 }
-
-
 
 void Game::LoadContent()
 {
@@ -62,10 +45,9 @@ void Game::LoadContent()
 
 void Game::Render()
 {
-	SDL_SetRenderDrawColor(m_p_Renderer, 0, 0, 0, 255);
-	SDL_RenderClear(m_p_Renderer);
-	g1.render(m_p_Renderer);
-	SDL_RenderPresent(m_p_Renderer);
+	m_renderer.clear(Colour(0, 0, 0));
+	g1.render(&m_renderer);
+	m_renderer.present();
 }
 
 void Game::Update()

@@ -11,10 +11,10 @@ void Block::Update()
 
 void Block::Init(float posX, float posY, float width, float height, int type)
 {
-	m_rectangle.x = static_cast<int>(posX);
-	m_rectangle.y = static_cast<int>(posY);
-	m_rectangle.w = static_cast<int>(width);
-	m_rectangle.h = static_cast<int>(height);
+	m_rectangle.pos.x = posX;
+	m_rectangle.pos.y = posY;
+	m_rectangle.size.w = width;
+	m_rectangle.size.h = height;
 	m_type = static_cast<BlockType>(type);
 	initializeColour();
 }
@@ -32,14 +32,14 @@ void Block::initializeColour()
 	}
 }
 
-Vector2 Block::getPosition() const
+Point2D Block::getPosition() const
 {
-	return Vector2(m_rectangle.x, m_rectangle.y);
+	return Point2D(m_rectangle.pos.x, m_rectangle.pos.y);
 }
 
-Vector2 Block::getSize() const
+Size2D Block::getSize() const
 {
-	return Vector2(m_rectangle.w, m_rectangle.h);
+	return Size2D(m_rectangle.size.w, m_rectangle.size.h);
 }
 
 bool Block::isBlockWall() const
@@ -47,14 +47,10 @@ bool Block::isBlockWall() const
 	return m_isWall;
 }
 
-void Block::render(SDL_Renderer * render)
+void Block::render(Renderer * r)
 {
-	SDL_SetRenderDrawColor(render, m_colour.r, m_colour.g, m_colour.b, m_colour.a);
-	SDL_RenderFillRect(render, &m_rectangle);
-
-	SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
-	SDL_RenderDrawRect(render, &m_rectangle);
-
+	r->drawWorldFillRect(m_rectangle, m_colour);
+	r->drawWorldRect(m_rectangle, Colour(0, 255, 0));
 }
 
 Block::~Block()
