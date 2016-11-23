@@ -20,7 +20,7 @@ bool Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	Size2D winSize(800, 600);
 
 	//How many Blocks wide is the blocks
-	float vpWidth = 30;
+	float vpWidth = 100;
 
 	//creates our renderer, which looks after drawing and the window
 	m_renderer.init(winSize, "Astar Threading");

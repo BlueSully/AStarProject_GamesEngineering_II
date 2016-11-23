@@ -8,7 +8,10 @@ class Grid
 {
 private:
 	vector<Block> m_blockList;
-	int m_numberWalls;
+	int m_totalNumberWalls;
+	int m_totalTouchingWalls;
+	int m_topWallCount;
+	int m_bottomWallCount;
 
 public:
 	Grid();
