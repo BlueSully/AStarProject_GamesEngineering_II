@@ -39,10 +39,12 @@ void Grid::init(int amount, Size2D windowResolution)
 	}
 
 	vector<std::pair<string, int>> wallpos;
+
 	int count = 0;
+
 	for (size_t i = 0; i < m_totalNumberWalls; i++)
 	{
-		wallindex += ((amount / m_totalNumberWalls) - m_totalNumberWalls);
+		wallindex += ((amount / m_totalNumberWalls) - m_totalNumberWalls * 0.5f);
 		if (i == m_topWallCount)
 		{
 			wallpos.push_back(make_pair("Top", wallindex));
@@ -58,6 +60,7 @@ void Grid::init(int amount, Size2D windowResolution)
 			wallpos.push_back(make_pair("Normal", wallindex));
 		}
 	}
+
 	int lastrow = 0;
 	for (int row = 0; row < amount; row++)
 	{
@@ -68,41 +71,34 @@ void Grid::init(int amount, Size2D windowResolution)
 
 			int top = 5;
 			int bottom = (amount - 5);
-
-			if (wallpos[wallcount].first == "Normal")
-			{
-				if (col > top && col < bottom)
-				{
-					blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::WALL);
-				}
-				else
-				{
-					blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::FLOOR);
-					if ((row + col) % 2 == 0)
-					{
-						blockTile.setColour(Colour(100, 100, 100));
-					}
-				}
-			}
-			/*else if ((row == wallpos[wallcount].second && wallpos[wallcount].first == "Top") && col < bottom)
+			
+			if(row == wallpos[wallcount].second && wallpos[wallcount].first == "Normal" && col > top && col < bottom)
 			{
 				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::WALL);
 			}
 			else if ((row == wallpos[wallcount].second && wallpos[wallcount].first == "Bottom") && col > top)
 			{
 				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::WALL);
-			}*/
-
-		/*	if (col > bottom && wallpos[wallcount].first != "Bottom")
-			{
-				wallcount++;
 			}
-			else if (lastrow != row) 
+			else if ((row == wallpos[wallcount].second && wallpos[wallcount].first == "Top") && col < bottom)
 			{
-				wallcount++;
-			}*/
+				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::WALL);
+			}		
+			else 
+			{
+				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::FLOOR);
+				if ((row + col) % 2 == 0)
+				{
+					blockTile.setColour(Colour(100, 100, 100));
+				}
+			}
 
 			m_blockList.push_back(blockTile);
+		}
+
+		if (row == wallpos[wallcount].second) 
+		{
+			wallcount++;
 		}
 	}
 
@@ -111,10 +107,12 @@ void Grid::init(int amount, Size2D windowResolution)
 
 Grid::~Grid()
 {
+
 }
 
 void Grid::Update()
 {
+
 }
 
 void Grid::render(Renderer * render)
