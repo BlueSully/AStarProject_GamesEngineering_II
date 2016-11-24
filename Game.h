@@ -5,6 +5,7 @@
 #include "Grid.h"
 #include "Player.h"
 #include "Renderer.h"
+#include "MovementType.h"
 
 class Game
 {

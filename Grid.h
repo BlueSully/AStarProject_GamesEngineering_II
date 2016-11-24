@@ -20,6 +20,7 @@ public:
 	~Grid();
 
 	vector<Block> getBlockList() const;
+	int getGridSize() const;
 	Block getBlockAtPos(Point2D Position) const;
 	Block getBlockAtIndex(int index) const;
 	void Update();

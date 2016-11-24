@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "BlockTypes.h"
 #include "BasicTypes.h"
+#include "MovementType.h"
 #include "Renderer.h"
 #include "Block.h"
 
@@ -19,12 +20,11 @@ public:
 	~Player();
 
 	void update();
+	Point2D getPosition() const;
+	Size2D getBounds() const;
 	int getBlockIndex() const;
 	void setBlockIndex(int value);
-	void moveRight(Size2D WorldBounds, Block * BlockRight);
-	void moveLeft(Size2D WorldBounds, vector<Block> * blockList);
-	void moveUp(Size2D WorldBounds, vector<Block> * blockList);
-	void moveDown(Size2D WorldBounds, vector<Block> * blockList);
+	void move(MovementDirection moveDir);
 	void render(Renderer * r);
 };
 

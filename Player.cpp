@@ -29,6 +29,16 @@ void Player::update()
 
 }
 
+Point2D Player::getPosition() const
+{
+	return m_rectangle.pos;
+}
+
+Size2D Player::getBounds() const
+{
+	return m_rectangle.size;
+}
+
 int Player::getBlockIndex() const
 {
 	return m_blockIndex;
@@ -39,45 +49,23 @@ void Player::setBlockIndex(int value)
 	m_blockIndex = value;
 }
 
-
-void Player::moveRight(Size2D WorldBounds, Block * BlockRight)
+void Player::move(MovementDirection moveDir)
 {
-	if ((m_rectangle.pos.x + m_rectangle.size.w < WorldBounds.w) && BlockRight->getType() != BlockType::WALL)
+	if (moveDir == MovementDirection::MOVE_RIGHT) 
 	{
-		//can move right
 		m_rectangle.pos.x += m_rectangle.size.w;
-		m_blockIndex = m_blockIndex + 10;
 	}
-}
-
-void Player::moveLeft(Size2D WorldBounds, vector<Block> * blockList)
-{
-	if (m_blockIndex - 10 > 0)
+	else if (moveDir == MovementDirection::MOVE_LEFT)
 	{
-		if (m_rectangle.pos.x > 0 && blockList->at(m_blockIndex - 10).getType() != BlockType::WALL)
-		{
-			//can move Left
-			m_rectangle.pos.x -= m_rectangle.size.w;
-			m_blockIndex = m_blockIndex - 10;
-		}
+		m_rectangle.pos.x -= m_rectangle.size.w;
 	}
-}
-
-void Player::moveUp(Size2D WorldBounds, vector<Block> * blockList)
-{
-	if (m_rectangle.pos.y > 0)
+	else if (moveDir == MovementDirection::MOVE_DOWN)
 	{
-		//can move Up
-		m_rectangle.pos.y -= m_rectangle.size.h;
-	}
-}
-
-void Player::moveDown(Size2D WorldBounds, vector<Block> * blockList)
-{
-	if (m_rectangle.pos.y + m_rectangle.size.h < WorldBounds.h)
-	{
-		//can move Down
 		m_rectangle.pos.y += m_rectangle.size.h;
+	}
+	else if (moveDir == MovementDirection::MOVE_UP)
+	{
+		m_rectangle.pos.y -= m_rectangle.size.h;
 	}
 }
 

@@ -7,10 +7,12 @@ using namespace std;
 
 Game::Game() : m_running(false)
 {
+
 }
 
 Game::~Game()
 {
+
 }
 
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
@@ -32,8 +34,6 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	//set up the viewport
 	Rect vpRect(vpBottomLeft, WorldBounds);
 	m_renderer.setViewPort(vpRect);
-
-	
 
 	m_g1.init(static_cast<int>(vpWidth), Size2D(WorldBounds.w / vpWidth, WorldBounds.h / vpWidth));
 
@@ -81,20 +81,42 @@ void Game::HandleEvents()
 			case SDLK_ESCAPE:
 				m_running = false;
 				break;
+			// Handling Player Movement
 			case SDLK_d:
-				if (m_player->getBlockIndex() + WorldBounds.w > 0)
+				if (m_player->getPosition().x + m_player->getBounds().w < WorldBounds.w &&
+					m_g1.getBlockAtIndex(m_player->getBlockIndex() + m_g1.getGridSize()).getType() != BlockType::WALL)
 				{
-					m_player->moveRight(WorldBounds, &m_g1.getBlockAtIndex(m_player->getBlockIndex()));
+					//can move right and Update
+					m_player->move(MovementDirection::MOVE_RIGHT);
+					m_player->setBlockIndex(m_player->getBlockIndex() + m_g1.getGridSize());
 				}
 				break;
 			case SDLK_a:
-				m_player->moveLeft(WorldBounds, &m_g1.getBlockList());
+				if (m_player->getPosition().x > 0 &&
+					m_g1.getBlockAtIndex(m_player->getBlockIndex() - m_g1.getGridSize()).getType() != BlockType::WALL)
+				{
+					//can move Left and Update
+					m_player->move(MovementDirection::MOVE_LEFT);
+					m_player->setBlockIndex(m_player->getBlockIndex() - m_g1.getGridSize());
+				}
 				break;
 			case SDLK_w:
-				m_player->moveUp(WorldBounds, &m_g1.getBlockList());
+				if (m_player->getPosition().y + m_player->getBounds().h > m_player->getBounds().h &&
+					m_g1.getBlockAtIndex(m_player->getBlockIndex() - 1).getType() != BlockType::WALL)
+				{
+					//can move Up and Update
+					m_player->move(MovementDirection::MOVE_UP);
+					m_player->setBlockIndex(m_player->getBlockIndex() - 1);
+				}
 				break;
 			case SDLK_s:
-				m_player->moveDown(WorldBounds, &m_g1.getBlockList());
+				if (m_player->getPosition().y < WorldBounds.h - m_player->getBounds().h &&
+					m_g1.getBlockAtIndex(m_player->getBlockIndex() + 1).getType() != BlockType::WALL)
+				{
+					//can move down and Update
+					m_player->move(MovementDirection::MOVE_DOWN);
+					m_player->setBlockIndex(m_player->getBlockIndex() + 1);
+				}
 				break;
 			case SDLK_r:				
 				break;

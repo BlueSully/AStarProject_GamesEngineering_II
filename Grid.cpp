@@ -107,6 +107,11 @@ vector<Block> Grid::getBlockList() const
 	return m_blockList;
 }
 
+int Grid::getGridSize() const
+{
+	return m_gridSize;
+}
+
 Block Grid::getBlockAtPos(Point2D Position) const
 {
 	for (int i = 0; i < m_gridSize; i++)
