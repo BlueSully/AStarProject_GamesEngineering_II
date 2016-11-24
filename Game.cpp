@@ -35,11 +35,22 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	Rect vpRect(vpBottomLeft, WorldBounds);
 	m_renderer.setViewPort(vpRect);
 
+	//SetupGrid
 	m_g1.init(static_cast<int>(vpWidth), Size2D(WorldBounds.w / vpWidth, WorldBounds.h / vpWidth));
 
+	//Setup Player
 	Point2D playerPos = Point2D(m_g1.getBlockAtIndex(0).getPosition().x, m_g1.getBlockAtIndex(0).getPosition().y);
 	Size2D playerSize = Size2D((WorldBounds.w / vpWidth), (WorldBounds.h / vpWidth));
 	m_player = new Player(playerPos, playerSize, 0);
+
+	//Setup Enemies
+	for (size_t i = 0; i < 5; i++)
+	{
+		int blockIndex = (m_g1.getGridSize() * m_g1.getGridSize()) - (5 + (2 * i));
+		Point2D enemyPos = Point2D(m_g1.getBlockAtIndex(blockIndex).getPosition().x, m_g1.getBlockAtIndex(blockIndex).getPosition().y);
+		Size2D enemySize = Size2D((WorldBounds.w / vpWidth), (WorldBounds.h / vpWidth));
+		m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+	}
 
 	m_running = true;
 }
@@ -52,8 +63,18 @@ void Game::LoadContent()
 void Game::Render()
 {
 	m_renderer.clear(Colour(0, 0, 0));
+	//Drawing Grid
 	m_g1.render(&m_renderer);
+
+	//Drawing Player
 	m_player->render(&m_renderer);
+
+	//Drawing Enemies
+	for (size_t i = 0; i < 5; i++)
+	{
+		m_enemies[i]->render(&m_renderer);
+	}
+
 	m_renderer.present();
 }
 

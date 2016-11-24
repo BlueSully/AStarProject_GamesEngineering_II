@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include "Grid.h"
 #include "Player.h"
+#include "Enemy.h"
 #include "Renderer.h"
 #include "MovementType.h"
 
@@ -27,6 +28,7 @@ private:
 	bool m_running;
 	Grid m_g1;
 	Player * m_player;
+	vector<Enemy *> m_enemies;
 	Renderer m_renderer;
 
 	Size2D WorldBounds;

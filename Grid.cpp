@@ -81,7 +81,7 @@ void Grid::init(int amount, Size2D gridSize)
 				blockTile.Init((gridSize.w * row), (gridSize.h * col), gridSize.w, gridSize.h, BlockType::FLOOR);
 				if ((row + col) % 2 == 0)
 				{
-					blockTile.setColour(Colour(100, 100, 100));
+					blockTile.setColour(Colour(150, 150, 150));
 				}
 			}
 			blockcount++;
