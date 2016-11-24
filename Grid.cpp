@@ -1,5 +1,11 @@
-#include "Grid.h"
+﻿#include "Grid.h"
 
+//struct AStarCostCompare {
+//public:
+//	bool operator()(NodeBlock * n1, NodeBlock * n2) {
+//		//return (n1->getCostDist() + n1->getEstGoalDist()) > (n2->getCostDist() + n2->getEstGoalDist());
+//	}
+//};
 
 Grid::Grid() 
 : m_totalNumberWalls(0), 
@@ -59,7 +65,7 @@ void Grid::init(int amount, Size2D gridSize)
 		for (int col = 0; col < m_gridSize ; col++)
 		{
 			// Setup Floor and Walls
-			Block blockTile;
+			NodeBlock blockTile;
 
 			int top = 5;
 			int bottom = (m_gridSize - 5);
@@ -85,6 +91,7 @@ void Grid::init(int amount, Size2D gridSize)
 				}
 			}
 			blockcount++;
+			blockTile.setNeighbours(m_gridSize, blockcount);
 			m_blockList.push_back(blockTile);
 		}
 
@@ -102,7 +109,7 @@ Grid::~Grid()
 
 }
 
-vector<Block> Grid::getBlockList() const
+vector<NodeBlock> Grid::getBlockList() const
 {
 	return m_blockList;
 }
@@ -112,7 +119,7 @@ int Grid::getGridSize() const
 	return m_gridSize;
 }
 
-Block Grid::getBlockAtPos(Point2D Position) const
+NodeBlock Grid::getBlockAtPos(Point2D Position) const
 {
 	for (int i = 0; i < m_gridSize; i++)
 	{
@@ -123,7 +130,7 @@ Block Grid::getBlockAtPos(Point2D Position) const
 	}
 }
 
-Block Grid::getBlockAtIndex(int index) const
+NodeBlock Grid::getBlockAtIndex(int index) const
 {
 	if (index < m_blockList.size()) 
 	{
@@ -141,5 +148,26 @@ void Grid::render(Renderer * render)
 	for (size_t i = 0; i < m_blockList.size(); i++)
 	{
 		m_blockList[i].render(render);
+	}
+}
+
+struct AstarNode 
+{
+	int gScore;
+	int fScore;
+	NodeBlock *previousNode;
+};
+
+void Grid::aStarAlgorithm(NodeBlock * start, NodeBlock * goal, Enemy * entity)
+{
+	entity->getClosedList();
+	entity->getOpenList();
+
+	int g = std::numeric_limits<int>::max();
+
+	//While Openlist is not Empty
+	while (entity->getOpenList().size() != 0) 
+	{
+
 	}
 }

@@ -5,7 +5,6 @@
 #include "BasicTypes.h"
 #include "MovementType.h"
 #include "Renderer.h"
-#include "Block.h"
 
 class Player
 {

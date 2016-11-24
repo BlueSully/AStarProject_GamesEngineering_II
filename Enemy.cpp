@@ -38,6 +38,16 @@ Size2D Enemy::getBounds() const
 	return m_rectangle.size;
 }
 
+vector<NodeBlock*> Enemy::getOpenList()
+{
+	return m_openList;
+}
+
+vector<NodeBlock*> Enemy::getClosedList()
+{
+	return m_closeList;
+}
+
 void Enemy::render(Renderer * r)
 {
 	r->drawWorldFillRect(m_rectangle, m_colour);
