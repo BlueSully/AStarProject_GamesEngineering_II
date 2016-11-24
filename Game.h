@@ -3,6 +3,7 @@
 #include "Debug.h"
 #include <SDL.h>
 #include "Grid.h"
+#include "Player.h"
 #include "Renderer.h"
 
 class Game
@@ -10,7 +11,8 @@ class Game
 public:
 	Game();
 	~Game();
-	bool Initialize(const char*, int, int, int, int, int);
+
+	void Initialize(const char*, int, int, int, int, int);
 	void LoadContent();
 	void UnloadContent();
 	void Reset();
@@ -22,9 +24,11 @@ public:
 private:
 	
 	bool m_running;
-	Grid g1;
-
+	Grid m_g1;
+	Player * m_player;
 	Renderer m_renderer;
+
+	Size2D WorldBounds;
 
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;

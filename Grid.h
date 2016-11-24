@@ -8,6 +8,7 @@ class Grid
 {
 private:
 	vector<Block> m_blockList;
+	int m_gridSize;
 	int m_totalNumberWalls;
 	int m_totalTouchingWalls;
 	int m_topWallCount;
@@ -18,6 +19,9 @@ public:
 	void init(int worldsize, Size2D windowResolution);
 	~Grid();
 
+	vector<Block> getBlockList() const;
+	Block getBlockAtPos(Point2D Position) const;
+	Block getBlockAtIndex(int index) const;
 	void Update();
 	void render(Renderer* render);
 };
