@@ -4,17 +4,22 @@
 #include "BasicTypes.h"
 #include "Renderer.h"
 
-class Block
+class NodeBlock
 {
 private:
 	// Holds Position of Block on Screen
 	Rect m_rectangle;
 	Colour m_colour;
 	BlockType m_type;
+	int m_currentIndex;
+	int m_topBlockIndex;
+	int m_bottomBlockIndex;
+	int m_rightBlockIndex;
+	int m_leftBlockIndex;
 
 public:
-	Block();
-	~Block();
+	NodeBlock();
+	~NodeBlock();
 
 	void Update();
 	void Init(float posX, float posY, float width, float height, BlockType type);
@@ -27,4 +32,5 @@ public:
 	BlockType getType() const;
 	void setColour(Colour val);
 
+	void setNeighbours(int gridSize, int currentIndex);
 };

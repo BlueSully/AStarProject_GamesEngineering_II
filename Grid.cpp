@@ -1,5 +1,11 @@
-#include "Grid.h"
+﻿#include "Grid.h"
 
+//struct AStarCostCompare {
+//public:
+//	bool operator()(NodeBlock * n1, NodeBlock * n2) {
+//		//return (n1->getCostDist() + n1->getEstGoalDist()) > (n2->getCostDist() + n2->getEstGoalDist());
+//	}
+//};
 
 Grid::Grid() 
 : m_totalNumberWalls(0), 
@@ -10,29 +16,23 @@ Grid::Grid()
 
 }
 
-void Grid::init(int amount, Size2D windowResolution)
+void Grid::init(int amount, Size2D gridSize)
 {
-	float sizeX = windowResolution.w / amount;
-	float sizeY = windowResolution.h / amount;
-
 	int wallindex = 0;
 	int wallcount = 0;
+	m_gridSize = amount;
 
-	if (amount == 10)
-	{
-		m_totalNumberWalls = 2;
-	}
-	else if (amount == 30)
+	if (m_gridSize == 30)
 	{
 		m_totalNumberWalls = 3;
 		m_totalTouchingWalls = 1;
 	}
-	else if (amount == 100)
+	else if (m_gridSize == 100)
 	{
 		m_totalNumberWalls = 6;
 		m_totalTouchingWalls = 2;
 	}
-	else if (amount == 1000)
+	else if (m_gridSize == 1000)
 	{
 		m_totalNumberWalls = 18;
 		m_totalTouchingWalls = 4;
@@ -40,11 +40,9 @@ void Grid::init(int amount, Size2D windowResolution)
 
 	vector<std::pair<string, int>> wallpos;
 
-	int count = 0;
-
 	for (size_t i = 0; i < m_totalNumberWalls; i++)
 	{
-		wallindex += ((amount / m_totalNumberWalls) - m_totalNumberWalls * 0.5f);
+		wallindex += static_cast<int>(((m_gridSize / m_totalNumberWalls) - m_totalNumberWalls * 0.5f));
 		if (i == m_topWallCount)
 		{
 			wallpos.push_back(make_pair("Top", wallindex));
@@ -61,38 +59,39 @@ void Grid::init(int amount, Size2D windowResolution)
 		}
 	}
 
-	int lastrow = 0;
-	for (int row = 0; row < amount; row++)
+	int blockcount = 0;
+	for (int row = 0; row < m_gridSize; row++)
 	{
-		for (int col = 0; col < amount; col++)
+		for (int col = 0; col < m_gridSize ; col++)
 		{
 			// Setup Floor and Walls
-			Block blockTile;
+			NodeBlock blockTile;
 
 			int top = 5;
-			int bottom = (amount - 5);
+			int bottom = (m_gridSize - 5);
 			
 			if(row == wallpos[wallcount].second && wallpos[wallcount].first == "Normal" && col > top && col < bottom)
 			{
-				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::WALL);
+				blockTile.Init((gridSize.w * row), (gridSize.h * col), gridSize.w, gridSize.h, BlockType::WALL);
 			}
 			else if ((row == wallpos[wallcount].second && wallpos[wallcount].first == "Bottom") && col > top)
 			{
-				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::WALL);
+				blockTile.Init((gridSize.w * row), (gridSize.h * col), gridSize.w, gridSize.h, BlockType::WALL);
 			}
 			else if ((row == wallpos[wallcount].second && wallpos[wallcount].first == "Top") && col < bottom)
 			{
-				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::WALL);
+				blockTile.Init((gridSize.w * row), (gridSize.h * col), gridSize.w, gridSize.h, BlockType::WALL);
 			}		
 			else 
 			{
-				blockTile.Init((sizeX * row), (sizeY * col), sizeX, sizeY, BlockType::FLOOR);
+				blockTile.Init((gridSize.w * row), (gridSize.h * col), gridSize.w, gridSize.h, BlockType::FLOOR);
 				if ((row + col) % 2 == 0)
 				{
-					blockTile.setColour(Colour(100, 100, 100));
+					blockTile.setColour(Colour(150, 150, 150));
 				}
 			}
-
+			blockcount++;
+			blockTile.setNeighbours(m_gridSize, blockcount);
 			m_blockList.push_back(blockTile);
 		}
 
@@ -110,6 +109,35 @@ Grid::~Grid()
 
 }
 
+vector<NodeBlock> Grid::getBlockList() const
+{
+	return m_blockList;
+}
+
+int Grid::getGridSize() const
+{
+	return m_gridSize;
+}
+
+NodeBlock Grid::getBlockAtPos(Point2D Position) const
+{
+	for (int i = 0; i < m_gridSize; i++)
+	{
+		if (Position.x == m_blockList[i].getPosition().x && Position.x == m_blockList[i].getPosition().y)
+		{
+			return m_blockList[i];
+		}
+	}
+}
+
+NodeBlock Grid::getBlockAtIndex(int index) const
+{
+	if (index < m_blockList.size()) 
+	{
+		return m_blockList[index];
+	}
+}
+
 void Grid::Update()
 {
 
@@ -120,5 +148,26 @@ void Grid::render(Renderer * render)
 	for (size_t i = 0; i < m_blockList.size(); i++)
 	{
 		m_blockList[i].render(render);
+	}
+}
+
+struct AstarNode 
+{
+	int gScore;
+	int fScore;
+	NodeBlock *previousNode;
+};
+
+void Grid::aStarAlgorithm(NodeBlock * start, NodeBlock * goal, Enemy * entity)
+{
+	entity->getClosedList();
+	entity->getOpenList();
+
+	int g = std::numeric_limits<int>::max();
+
+	//While Openlist is not Empty
+	while (entity->getOpenList().size() != 0) 
+	{
+
 	}
 }
