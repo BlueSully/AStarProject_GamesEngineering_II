@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 	while(game->IsRunning())
 	{
 		game->HandleEvents();
-		game->Update();
+		game->Update(0.0f);
 		game->Render();
 	}
 

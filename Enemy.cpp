@@ -38,6 +38,16 @@ Size2D Enemy::getBounds() const
 	return m_rectangle.size;
 }
 
+int Enemy::getBlockIndex() const
+{
+	return m_blockIndex;
+}
+
+void Enemy::setBlockIndex(int value)
+{
+	m_blockIndex = value;
+}
+
 vector<NodeBlock*> Enemy::getOpenList()
 {
 	return m_openList;

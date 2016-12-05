@@ -23,6 +23,7 @@ public:
 	Size2D getBounds() const;
 	int getBlockIndex() const;
 	void setBlockIndex(int value);
+
 	void move(MovementDirection moveDir);
 	void render(Renderer * r);
 };

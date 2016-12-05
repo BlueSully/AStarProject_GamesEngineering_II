@@ -48,7 +48,6 @@ void Player::setBlockIndex(int value)
 {
 	m_blockIndex = value;
 }
-
 void Player::move(MovementDirection moveDir)
 {
 	if (moveDir == MovementDirection::MOVE_RIGHT) 

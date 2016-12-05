@@ -19,37 +19,42 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 {
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	Size2D winSize(800, 600);
-
+	m_winSize = Size2D(static_cast<float>(width), static_cast<float>(height));
+	
+	//Creates our renderer, which looks after drawing and the window
+	m_renderer.init(m_winSize, "Astar Threading");
+	float aspectRatio = m_winSize.w / m_winSize.h;
+	
 	//How many Blocks wide is the blocks
 	float vpWidth = 30;
+	m_worldBounds = Size2D(vpWidth, vpWidth / aspectRatio);
+	Point2D vpBottomLeft(-m_worldBounds.w / 2, -m_worldBounds.h / 2);
 
-	//creates our renderer, which looks after drawing and the window
-	m_renderer.init(winSize, "Astar Threading");
-	float aspectRatio = winSize.w / winSize.h;
-	
-	WorldBounds = Size2D(vpWidth, vpWidth / aspectRatio);
-	Point2D vpBottomLeft(-WorldBounds.w / 2, -WorldBounds.h / 2);
-
-	//set up the viewport
-	Rect vpRect(vpBottomLeft, WorldBounds);
+	//Set up the viewport
+	Rect vpRect(vpBottomLeft, m_worldBounds);
 	m_renderer.setViewPort(vpRect);
 
-	//SetupGrid
-	m_g1.init(static_cast<int>(vpWidth), Size2D(WorldBounds.w / vpWidth, WorldBounds.h / vpWidth));
+	//Setup Grid
+	m_grid = new Grid(static_cast<int>(vpWidth), Size2D(m_worldBounds.w / vpWidth, m_worldBounds.h / vpWidth));
 
-	//Setup Player
-	Point2D playerPos = Point2D(m_g1.getBlockAtIndex(0).getPosition().x, m_g1.getBlockAtIndex(0).getPosition().y);
-	Size2D playerSize = Size2D((WorldBounds.w / vpWidth), (WorldBounds.h / vpWidth));
-	m_player = new Player(playerPos, playerSize, 0);
-
-	//Setup Enemies
-	for (size_t i = 0; i < 5; i++)
+	if (m_grid != nullptr)
 	{
-		int blockIndex = (m_g1.getGridSize() * m_g1.getGridSize()) - (5 + (2 * i));
-		Point2D enemyPos = Point2D(m_g1.getBlockAtIndex(blockIndex).getPosition().x, m_g1.getBlockAtIndex(blockIndex).getPosition().y);
-		Size2D enemySize = Size2D((WorldBounds.w / vpWidth), (WorldBounds.h / vpWidth));
-		m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+		//Setup Player
+		int playerBlockIndex = static_cast<int>(((vpWidth / 2)) * (vpWidth / 3) * 5);
+
+		Point2D playerPos = Point2D(m_grid->getBlockAtIndex(playerBlockIndex).getPosition().x, m_grid->getBlockAtIndex(playerBlockIndex).getPosition().y);
+		Size2D playerSize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
+		m_player = new Player(playerPos, playerSize, playerBlockIndex);
+
+		m_enemySize = 1;
+		//Setup Enemies
+		for (int i = 0; i < m_enemySize; i++)
+		{
+			int blockIndex = (m_grid->getGridSize() * m_grid->getGridSize()) - (5 + (2 * i));
+			Point2D enemyPos = Point2D(m_grid->getBlockAtIndex(blockIndex).getPosition().x, m_grid->getBlockAtIndex(blockIndex).getPosition().y);
+			Size2D enemySize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
+			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+		}
 	}
 
 	m_running = true;
@@ -63,29 +68,79 @@ void Game::LoadContent()
 void Game::Render()
 {
 	m_renderer.clear(Colour(0, 0, 0));
-	//Drawing Grid
-	m_g1.render(&m_renderer);
 
-	//Drawing Player
-	m_player->render(&m_renderer);
-
-	//Drawing Enemies
-	for (size_t i = 0; i < 5; i++)
+	if (m_grid != nullptr)
 	{
-		m_enemies[i]->render(&m_renderer);
+		//Drawing Grid
+		m_grid->render(&m_renderer);
+
+		//Drawing Player
+		m_player->render(&m_renderer);
+
+		//Drawing Enemies
+		for (size_t i = 0; i < 5; i++)
+		{
+			m_enemies[0]->render(&m_renderer);
+		}
 	}
 
 	m_renderer.present();
 }
 
-void Game::Reset()
+void Game::Reset(int gridSize, int enemysize)
 {
 	cout << "Reset Called" << endl;
+	//Clearing Memory
+	delete m_grid;
+
+	delete m_player;
+
+	for (size_t i = 0; i < m_enemies.size(); i++)
+	{
+		delete m_enemies[i];
+	}
+	m_enemies.clear();
+
+	//reinitializing window
+	float aspectRatio = m_winSize.w / m_winSize.h;
+	m_worldBounds = Size2D(static_cast<float>(gridSize), static_cast<float>(gridSize / aspectRatio));
+	Point2D vpBottomLeft(-m_worldBounds.w / 2, -m_worldBounds.h / 2);
+
+	//Set up the viewport
+	Rect vpRect(vpBottomLeft, m_worldBounds);
+	m_renderer.setViewPort(vpRect);
+
+	//reinitializing objects
+	m_grid = new Grid(static_cast<int>(gridSize), Size2D(m_worldBounds.w / gridSize, m_worldBounds.h / gridSize));
+
+	if (m_grid != nullptr)
+	{
+		//Setup Player
+		int playerBlockIndex = ((gridSize / 2)) * (gridSize / 3) * 5;
+
+		Point2D playerPos = Point2D(m_grid->getBlockAtIndex(playerBlockIndex).getPosition().x, m_grid->getBlockAtIndex(playerBlockIndex).getPosition().y);
+		Size2D playerSize = Size2D((m_worldBounds.w / gridSize), (m_worldBounds.h / gridSize));
+		m_player = new Player(playerPos, playerSize, playerBlockIndex);
+
+		m_enemySize = enemysize;
+		//Setup Enemies
+		for (int i = 0; i < m_enemySize; i++)
+		{
+			int blockIndex = (m_grid->getGridSize() * m_grid->getGridSize()) - (5 + (2 * i));
+			Point2D enemyPos = Point2D(m_grid->getBlockAtIndex(blockIndex).getPosition().x, m_grid->getBlockAtIndex(blockIndex).getPosition().y);
+			Size2D enemySize = Size2D((m_worldBounds.w / gridSize), (m_worldBounds.h / gridSize));
+			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+		}
+	}
 }
 
-void Game::Update()
+void Game::Update(float deltaTime)
 {
-
+	//if (m_grid->isGridInitialised() && m_grid != nullptr)
+	//{
+	//	m_grid->resetGrid();
+		//vector<NodeBlock> path = m_grid->aStarAlgorithm(&m_grid->getBlockAtIndex(m_enemies[0]->getBlockIndex()), &m_grid->getBlockAtIndex(m_player->getBlockIndex()));
+	//}
 }
 
 void Game::HandleEvents()
@@ -102,28 +157,28 @@ void Game::HandleEvents()
 			case SDLK_ESCAPE:
 				m_running = false;
 				break;
-			// Handling Player Movement
+				// Handling Player Movement
 			case SDLK_d:
-				if (m_player->getPosition().x + m_player->getBounds().w < WorldBounds.w &&
-					m_g1.getBlockAtIndex(m_player->getBlockIndex() + m_g1.getGridSize()).getType() != BlockType::WALL)
+				if (m_player->getPosition().x + m_player->getBounds().w < m_worldBounds.w &&
+					m_grid->getBlockAtIndex(m_player->getBlockIndex() + m_grid->getGridSize()).getType() != BlockType::WALL)
 				{
 					//can move right and Update
 					m_player->move(MovementDirection::MOVE_RIGHT);
-					m_player->setBlockIndex(m_player->getBlockIndex() + m_g1.getGridSize());
+					m_player->setBlockIndex(m_player->getBlockIndex() + m_grid->getGridSize());
 				}
 				break;
 			case SDLK_a:
 				if (m_player->getPosition().x > 0 &&
-					m_g1.getBlockAtIndex(m_player->getBlockIndex() - m_g1.getGridSize()).getType() != BlockType::WALL)
+					m_grid->getBlockAtIndex(m_player->getBlockIndex() - m_grid->getGridSize()).getType() != BlockType::WALL)
 				{
 					//can move Left and Update
 					m_player->move(MovementDirection::MOVE_LEFT);
-					m_player->setBlockIndex(m_player->getBlockIndex() - m_g1.getGridSize());
+					m_player->setBlockIndex(m_player->getBlockIndex() - m_grid->getGridSize());
 				}
 				break;
 			case SDLK_w:
 				if (m_player->getPosition().y + m_player->getBounds().h > m_player->getBounds().h &&
-					m_g1.getBlockAtIndex(m_player->getBlockIndex() - 1).getType() != BlockType::WALL)
+					m_grid->getBlockAtIndex(m_player->getBlockIndex() - 1).getType() != BlockType::WALL)
 				{
 					//can move Up and Update
 					m_player->move(MovementDirection::MOVE_UP);
@@ -131,15 +186,23 @@ void Game::HandleEvents()
 				}
 				break;
 			case SDLK_s:
-				if (m_player->getPosition().y < WorldBounds.h - m_player->getBounds().h &&
-					m_g1.getBlockAtIndex(m_player->getBlockIndex() + 1).getType() != BlockType::WALL)
+				if (m_player->getPosition().y < m_worldBounds.h - m_player->getBounds().h &&
+					m_grid->getBlockAtIndex(m_player->getBlockIndex() + 1).getType() != BlockType::WALL)
 				{
 					//can move down and Update
 					m_player->move(MovementDirection::MOVE_DOWN);
 					m_player->setBlockIndex(m_player->getBlockIndex() + 1);
 				}
 				break;
-			case SDLK_r:				
+				//Changing Grid //Resetting grid with block and enemies 
+			case SDLK_1:
+				Reset(30, 1);
+				break;
+			case SDLK_2:
+				Reset(100, 1);
+				break;
+			case SDLK_3:
+				Reset(1000, 1);
 				break;
 			default:
 				break;
@@ -149,8 +212,6 @@ void Game::HandleEvents()
 			{
 			case SDLK_ESCAPE:
 				m_running = false;
-				break;
-			case SDLK_r:		
 				break;
 			default:
 				break;

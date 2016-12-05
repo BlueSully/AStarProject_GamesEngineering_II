@@ -26,6 +26,8 @@ public:
 
 	Point2D getPosition() const;
 	Size2D getBounds() const;
+	int getBlockIndex() const;
+	void setBlockIndex(int value);
 	vector<NodeBlock *> getOpenList();
 	vector<NodeBlock *> getClosedList();
 };

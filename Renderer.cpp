@@ -11,12 +11,12 @@ using namespace std;
 
 #include "Renderer.h"
 
-Renderer::Renderer():sdl_renderer(NULL)
+Renderer::Renderer() : sdl_renderer(NULL)
 {
 	
 }
 
-bool Renderer::init(const Size2D& winSize,const char* title) 
+bool Renderer::init(const Size2D& winSize, const char* title) 
 {
 	int e = SDL_Init(SDL_INIT_EVERYTHING);              // Initialize SDL2
 	windowSize = winSize;
@@ -29,12 +29,12 @@ bool Renderer::init(const Size2D& winSize,const char* title)
 
 	// Create an application window with the following settings:
 	window = SDL_CreateWindow(
-		title,                  // window title
-		SDL_WINDOWPOS_UNDEFINED,           // initial x position
-		SDL_WINDOWPOS_UNDEFINED,           // initial y position
-		(int)winSize.w,                              // width, in pixels
-		(int)winSize.h,                               // height, in pixels
-		SDL_WINDOW_OPENGL                  // flags - see below
+		title,							    // window title
+		SDL_WINDOWPOS_UNDEFINED,			// initial x position
+		SDL_WINDOWPOS_UNDEFINED,			// initial y position
+		(int)winSize.w,						// width, in pixels
+		(int)winSize.h,						// height, in pixels
+		SDL_WINDOW_OPENGL					// flags - see below
 	);
 
 	// Check that the window was successfully created
@@ -76,7 +76,7 @@ void Renderer::drawFillRect(const Rect& r, const Colour& c) const
 	sr.w = (int)r.size.w;
 	sr.x = (int)r.pos.x;
 	sr.y = (int)r.pos.y;
-	SDL_RenderFillRect(sdl_renderer, &sr); //Portal uses SDL_RenderDrawRect /***
+	SDL_RenderFillRect(sdl_renderer, &sr);
 }
 
 //draw a rect in pixel coordinates
@@ -88,7 +88,7 @@ void Renderer::drawRect(const Rect& r, const Colour& c) const
 	sr.w = static_cast<int>(r.size.w);
 	sr.x = static_cast<int>(r.pos.x);
 	sr.y = static_cast<int>(r.pos.y);
-	SDL_RenderDrawRect(sdl_renderer, &sr); //Portal uses SDL_RenderDrawRect /***
+	SDL_RenderDrawRect(sdl_renderer, &sr);
 }
 
 void Renderer::drawTexture(int textureName, const Rect &r) const
@@ -142,6 +142,7 @@ void Renderer::clear(const Colour& col) const
 	SDL_RenderClear(sdl_renderer);
 
 }
+
 Point2D Renderer::worldToScreen(const Point2D &p) const
 {
 	float x = p.x * windowSize.w / viewportSize.w;
@@ -149,6 +150,7 @@ Point2D Renderer::worldToScreen(const Point2D &p) const
 	
 	return Point2D(x,y);
 }
+
 Rect Renderer::worldToScreen(const Rect &r) const
 {
 	Point2D p = worldToScreen(r.pos);
@@ -161,7 +163,7 @@ Rect Renderer::worldToScreen(const Rect &r) const
 void Renderer::setViewPort(const Rect &r)
 {
 	viewportBottomLeft = r.pos;
-	viewportSize=r.size;
+	viewportSize = r.size;
 }
 
 Size2D Renderer::getWindowSize() const

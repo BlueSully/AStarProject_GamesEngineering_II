@@ -17,21 +17,24 @@ public:
 	void Initialize(const char*, int, int, int, int, int);
 	void LoadContent();
 	void UnloadContent();
-	void Reset();
+	void Reset(int gridSize, int enemysize);
 	void Render();
-	void Update();
+	void Update(float deltaTime);
 	void HandleEvents();
 	bool IsRunning();
 	void CleanUp();
 private:
-	
+	bool debug;
 	bool m_running;
-	Grid m_g1;
+
+	Grid * m_grid;
 	Player * m_player;
 	vector<Enemy *> m_enemies;
 	Renderer m_renderer;
 
-	Size2D WorldBounds;
+	int m_enemySize;
+	Size2D m_winSize;
+	Size2D m_worldBounds;
 
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
