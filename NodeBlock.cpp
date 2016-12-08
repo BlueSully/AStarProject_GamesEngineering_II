@@ -81,9 +81,16 @@ int NodeBlock::getIndex() const
 	return m_currentIndex;
 }
 
-void NodeBlock::setColour(Colour val)
+void NodeBlock::setSolidColour(Colour val)
 {
 	m_colour = val;
+}
+
+void NodeBlock::setColour(Colour val)
+{
+	m_colour.r += val.r;
+	m_colour.g += val.g;
+	m_colour.b += val.b;
 }
 
 void NodeBlock::setMarked(bool value)

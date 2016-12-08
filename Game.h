@@ -23,6 +23,7 @@ public:
 	void HandleEvents();
 	bool IsRunning();
 	void CleanUp();
+
 private:
 	bool debug;
 	bool m_running;
@@ -39,5 +40,7 @@ private:
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
 
+	SDL_Thread *thread;
+	int threadReturnValue;
 };
 #endif

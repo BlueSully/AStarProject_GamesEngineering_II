@@ -8,15 +8,22 @@
 using namespace std;
 
 
+void Loop(Game * game);
+
 int main(int argc, char** argv)
 {
 	Game* game = new Game();
-
-	//Adjust screen positions as needed
+	
 	game->Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
-	DEBUG_MSG("Game Init Successful");
 
-	while(game->IsRunning())
+	Loop(game);
+
+	return 0;
+}
+
+void Loop(Game * game) 
+{
+	while (game->IsRunning())
 	{
 		game->HandleEvents();
 		game->Update(0.0f);
@@ -24,8 +31,6 @@ int main(int argc, char** argv)
 	}
 
 	game->CleanUp();
-	game->UnloadContent();
-	
-	return 0;
+	game->UnloadContent();//create GameLoop
 }
 

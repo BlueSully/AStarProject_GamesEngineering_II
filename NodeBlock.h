@@ -35,6 +35,7 @@ public:
 	BlockType getType() const;
 	void Reset();
 	void setOriginalColour(Colour val);
+	void setSolidColour(Colour val);
 	void setColour(Colour val);
 	void setMarked(bool value);
 

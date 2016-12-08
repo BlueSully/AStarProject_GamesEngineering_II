@@ -15,8 +15,22 @@ Game::~Game()
 
 }
 
+static int TestThread(void *ptr)
+{
+	int cnt;
+
+	for (cnt = 0; cnt < 30; ++cnt) 
+	{
+		printf("\nThread counter: %d", cnt);
+		SDL_Delay(150);
+	}
+
+	return cnt;
+}
+
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
+	DEBUG_MSG("Game Init Called");
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	m_winSize = Size2D(static_cast<float>(width), static_cast<float>(height));
@@ -56,8 +70,17 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
 		}
 	}
-
+	
 	m_running = true;
+
+	//printf("\nSimple SDL_CreateThread test:");
+	//// Simply create a thread
+	//thread = SDL_CreateThread(TestThread, "TestThread", (void *)NULL);
+
+	//if (NULL == thread)
+	//{
+	//	printf("\nSDL_CreateThread failed: %s\n", SDL_GetError());
+	//}
 }
 
 void Game::LoadContent()
@@ -99,6 +122,7 @@ void Game::Reset(int gridSize, int enemysize)
 	{
 		delete m_enemies[i];
 	}
+
 	m_enemies.clear();
 
 	//reinitializing window
@@ -116,7 +140,7 @@ void Game::Reset(int gridSize, int enemysize)
 	if (m_grid != nullptr)
 	{
 		//Setup Player
-		int playerBlockIndex = ((gridSize / 2)) * (gridSize / 3) * 5;
+		int playerBlockIndex = static_cast<int>(((gridSize / 2)) * (gridSize / 3) * 5);
 
 		Point2D playerPos = Point2D(m_grid->getBlockAtIndex(playerBlockIndex).getPosition().x, m_grid->getBlockAtIndex(playerBlockIndex).getPosition().y);
 		Size2D playerSize = Size2D((m_worldBounds.w / gridSize), (m_worldBounds.h / gridSize));
@@ -136,11 +160,12 @@ void Game::Reset(int gridSize, int enemysize)
 
 void Game::Update(float deltaTime)
 {
-	//if (m_grid->isGridInitialised() && m_grid != nullptr)
-	//{
-	//	m_grid->resetGrid();
-		//vector<NodeBlock> path = m_grid->aStarAlgorithm(&m_grid->getBlockAtIndex(m_enemies[0]->getBlockIndex()), &m_grid->getBlockAtIndex(m_player->getBlockIndex()));
-	//}
+	if (m_grid->isGridInitialised() && m_grid != nullptr && !debug)
+	{
+		m_grid->resetGrid();
+		vector<NodeBlock> path = m_grid->oldAStarAlgorithm(&m_grid->getBlockAtIndex(m_enemies[0]->getBlockIndex()), &m_grid->getBlockAtIndex(m_player->getBlockIndex()));
+		debug = true;
+	}
 }
 
 void Game::HandleEvents()
@@ -194,6 +219,10 @@ void Game::HandleEvents()
 					m_player->setBlockIndex(m_player->getBlockIndex() + 1);
 				}
 				break;
+			case SDLK_x:
+				debug = false;
+				break;
+				
 				//Changing Grid //Resetting grid with block and enemies 
 			case SDLK_1:
 				Reset(30, 1);
@@ -234,6 +263,8 @@ void Game::UnloadContent()
 void Game::CleanUp()
 {
 	DEBUG_MSG("Cleaning Up");
+	//SDL_KillThread(thread);
+
 	SDL_DestroyWindow(m_p_Window);
 	SDL_DestroyRenderer(m_p_Renderer);
 	SDL_Quit();

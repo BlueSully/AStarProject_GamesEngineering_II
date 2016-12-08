@@ -9,43 +9,53 @@
 #include "Enemy.h"
 #include "BasicTypes.h"
 
-//struct AstarNode
-//{
-//	NodeBlock * currentNode;
-//	NodeBlock * prevNode;
-//	float fScore;
-//	float gScore;
-//	bool open;
-//	bool closed;
-//
-//	AstarNode() : currentNode(nullptr),
-//		prevNode(nullptr),
-//		fScore(std::numeric_limits<float>::infinity()),
-//		gScore(std::numeric_limits<float>::infinity()),
-//		open(false),
-//		closed(false)
-//	{
-//
-//	}
-//
-//	AstarNode(NodeBlock *n) : currentNode(n),
-//		prevNode(nullptr),
-//		fScore(std::numeric_limits<float>::infinity()), 
-//		gScore(std::numeric_limits<float>::infinity()),
-//		open(false),
-//		closed(false)
-//	{
-//
-//	}
-//};
-//
-//struct comparator 
-//{
-//	bool operator() (const AstarNode &lhs, const AstarNode &rhs) const
-//	{
-//		return lhs.fScore < rhs.fScore;
-//	}
-//};
+struct AstarNode
+{
+	NodeBlock * currentNode;
+	NodeBlock * prevNode;
+	float fScore;
+	float gScore;
+	bool open;
+	bool closed;
+
+	AstarNode() : currentNode(nullptr),
+		prevNode(nullptr),
+		fScore(std::numeric_limits<float>::infinity()),
+		gScore(std::numeric_limits<float>::infinity()),
+		open(false),
+		closed(false)
+	{
+
+	}
+
+	AstarNode(NodeBlock *n) : currentNode(n),
+		prevNode(nullptr),
+		fScore(std::numeric_limits<float>::infinity()), 
+		gScore(std::numeric_limits<float>::infinity()),
+		open(false),
+		closed(false)
+	{
+
+	}
+
+	AstarNode(AstarNode *n) : currentNode(n->currentNode),
+		prevNode(n->prevNode),
+		fScore(n->fScore),
+		gScore(n->gScore),
+		open(n->open),
+		closed(n->closed)
+	{
+
+	}
+};
+
+struct comparator 
+{
+	bool operator() (const AstarNode *lhs, const AstarNode *rhs) const
+	{
+		return lhs->fScore < rhs->fScore;
+	}
+};
 
 class Grid
 {

@@ -279,30 +279,31 @@ float Grid::heuristic_cost_estimate(NodeBlock * node, NodeBlock * goal) const
 {
 	float dX = std::fabsf(node->getPosition().x - goal->getPosition().x);
 	float dY = std::fabsf(node->getPosition().y - goal->getPosition().y);
-	float heuristic = (dX + dY);
+	float heuristic = 1 * (dX + dY);
 
 	return heuristic;
 }
 
 float Grid::heuristic_cost_estimate(NodeBlock *node, NodeBlock *goal, NodeBlock *start) const
 {
+	float heuristic = heuristic_cost_estimate(node, goal);
+
 	//manhattan cost distance with new fix 
 	float dx1 = node->getPosition().x - goal->getPosition().x;
 	float dy1 = node->getPosition().y - goal->getPosition().y;
 	float dx2 = start->getPosition().x - goal->getPosition().x;
 	float dy2 = start->getPosition().y - goal->getPosition().y;
 	float cross = std::abs((dx1 * dy2) - (dx2 * dy1));
-	float heuristic = 0; 
-	heuristic += cross * 0.0001f;
+	heuristic += (cross * 0.001f);
 
 	return heuristic;
 }
 
-/*
+
 vector<NodeBlock> Grid::aStarAlgorithm(NodeBlock *start, NodeBlock *goal)
 {
-	std::set<AstarNode, comparator> closedSet;
-	std::set<AstarNode, comparator> openSet;
+	std::set<AstarNode *> closedSet;
+	std::set<AstarNode *> openSet;
 
 	AstarNode s(start);
 	AstarNode g(goal);
@@ -312,11 +313,11 @@ vector<NodeBlock> Grid::aStarAlgorithm(NodeBlock *start, NodeBlock *goal)
 	// For the first node, that value is completely heuristic.
 	s.fScore = heuristic_cost_estimate(start, goal); // fScore[start] : = heuristic_cost_estimate(start, goal)
 
-	openSet.insert(s);
+	openSet.insert(&s);
 
 	while (!openSet.empty() && openSet.size() < m_blockList.size())
 	{
-		AstarNode cur((openSet.begin()->currentNode));//get Top block
+		AstarNode cur(*openSet.begin());//get Top block
 		cur.currentNode->setColour(Colour(0, 255, 255));
 
 		if (cur.currentNode->getIndex() == goal->getIndex())//if current node equals goal
@@ -331,7 +332,7 @@ vector<NodeBlock> Grid::aStarAlgorithm(NodeBlock *start, NodeBlock *goal)
 			return path;
 		}
 
-		closedSet.insert(cur);
+		closedSet.insert(&cur);
 		openSet.erase(openSet.begin());
 
 		vector<NodeBlock> curNeighbourList;//Get the current neighbours list
@@ -358,32 +359,33 @@ vector<NodeBlock> Grid::aStarAlgorithm(NodeBlock *start, NodeBlock *goal)
 
 		for (size_t i = 0; i < curNeighbourList.size(); i++)
 		{
-			AstarNode neighbour(&curNeighbourList[i]);
+			AstarNode * neighbour = new AstarNode(&curNeighbourList[i]);
 
-			if (closedSet.count(neighbour) == 1)//	if neighbor in closedSet, Ignore
+			if (closedSet.find(neighbour) == closedSet.end())//	if neighbor in closedSet, Ignore
 			{
 				continue;
 			}
 
 			//The distance from start to a neighbor
 			//Tentative_gScore : = gScore[current] + dist_between(current, neighbor)
-			float dx = cur.currentNode->getPosition().x - neighbour.currentNode->getPosition().x;
-			float dy = cur.currentNode->getPosition().y - neighbour.currentNode->getPosition().y;
+			float dx = cur.currentNode->getPosition().x - neighbour->currentNode->getPosition().x;
+			float dy = cur.currentNode->getPosition().y - neighbour->currentNode->getPosition().y;
 			float tentative_gScore = cur.gScore + (dx * dy);
 
-			if (openSet.count(neighbour) == 0)//if neighbor not in openSet // Discover a new node
+			std::set<AstarNode *>::iterator it = openSet.find(neighbour);
+			if (it == openSet.end())//if neighbor not in openSet // Discover a new node
 			{
 				openSet.insert(neighbour);
 			}
-			else if (tentative_gScore >= neighbour.gScore) // if true This is not a better path. Ignore then
+			else if (tentative_gScore >= neighbour->gScore) // if true This is not a better path. Ignore then
 			{
 				continue;
 			}
 
-			neighbour.gScore = tentative_gScore;
-			neighbour.fScore = neighbour.gScore + heuristic_cost_estimate(neighbour.currentNode, goal);
-			neighbour.prevNode = cur.currentNode;
-			neighbour.currentNode->setColour(Colour(0, 100, 0));
+			neighbour->gScore = tentative_gScore;
+			neighbour->fScore = neighbour->gScore + heuristic_cost_estimate(neighbour->currentNode, goal);
+			neighbour->prevNode = cur.currentNode;
+			neighbour->currentNode->setColour(Colour(0, 100, 0));
 		}
 		curNeighbourList.clear();//Clean neighbour looking list
 	}
@@ -394,7 +396,7 @@ vector<NodeBlock> Grid::aStarAlgorithm(NodeBlock *start, NodeBlock *goal)
 vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 {
 	std::map<NodeBlock*, AstarNode> openNodeData;
-	std::map<NodeBlock*, AstarNode> closedNodeData;
+
 	auto comparator = [&openNodeData](NodeBlock * n1, NodeBlock * n2)
 	{
 		bool result = ((openNodeData[n1].fScore) > (openNodeData[n2].fScore));
@@ -413,9 +415,10 @@ vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 
 	while (!openList.empty() && openList.size() < m_blockList.size())
 	{
+		/*std::make_heap(const_cast<NodeBlock **>(&openList.top()), const_cast<NodeBlock **>(&openList.top() + openList.size()), comparator);*/
 		NodeBlock *cur = openList.top();
-		cur->setColour(Colour(0, 255, 255));
-
+		cur->setColour(Colour(0, 20, 120));
+		
 		if ((*cur).getIndex() == goal->getIndex())//if current node equals goal
 		{
 			vector<NodeBlock> path;
@@ -425,11 +428,17 @@ vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 				path.push_back(*(openNodeData[cur].prevNode));//add node to path				
 				cur = openNodeData[cur].prevNode;
 			}
+			typedef std::map<NodeBlock*, AstarNode>::iterator it_type;
+			for (it_type iterator = openNodeData.begin(); iterator != openNodeData.end(); iterator++) {
+				printf("\nindex: %d fscore: %d", iterator->first->getIndex(), iterator->second.fScore);
+			}
+
 			return path;
 		}
 
 		openList.pop();// Delete current from openlist as finished with it
 		openNodeData[cur].closed = true;
+		openNodeData[cur].open = false;
 
 		vector<NodeBlock *> curNeighbourList;//Get the current neighbours list
 		if (cur->getTopNeighbour() > -1 && m_blockList[cur->getTopNeighbour()].getType() != BlockType::WALL)//Filling Niehgbour list with valid blocks
@@ -457,9 +466,10 @@ vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 			{
 				//The distance from start to a neighbor
 				//Tentative_gScore : = gScore[current] + dist_between(current, neighbor)
-				float dx = cur->getPosition().x - (*iter)->getPosition().x;
-				float dy = cur->getPosition().y - (*iter)->getPosition().y;
-				float tentative_gScore = openNodeData[cur].gScore + (dx * dy);
+				float dx = (cur->getPosition().x - (*iter)->getPosition().x);
+				float dy = (cur->getPosition().y - (*iter)->getPosition().y);
+				
+				float tentative_gScore = openNodeData[cur].gScore + sqrt((dx * dx) + (dy * dy));
 
 				if (!(openNodeData[*iter].open))
 				{
@@ -479,18 +489,29 @@ vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 				//fScore[neighbor] : = gScore[neighbor] + heuristic_cost_estimate(neighbor, goal)
 				openNodeData[*iter].fScore = openNodeData[*iter].gScore + heuristic_cost_estimate((*iter), goal, start);
 
-				if ((openNodeData[*iter].open))
+				if ((openNodeData[*iter].open) && !openNodeData[*iter].closed)
 				{				
 					openList.push(*iter);
+					openNodeData[*iter].closed = true;
+					std::make_heap(const_cast<NodeBlock **>(&openList.top()), const_cast<NodeBlock **>(&openList.top() + openList.size()), comparator);
 				}
-				(*iter)->setColour(Colour(0, 100, 0));
+				/*else
+				{
+
+				}*/
+				//(*iter)->setColour(Colour(0, 60, 0));
 			}
 		}
+		if (openNodeData[cur].fScore > 0) 
+		{
+			printf("\nindex: %d fscore: %d", cur->getIndex(), openNodeData[cur].fScore);
+		}
 		curNeighbourList.clear();//Clean neighbour looking list
+		
 	}
 	return vector<NodeBlock>();
 }
-*/
+
 // ASTAR PESUDO-CODE
 //function A*(start, goal)
 //// The set of nodes already evaluated.
