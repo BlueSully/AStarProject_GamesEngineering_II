@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-Enemy::Enemy() : m_blockIndex(0)
+Enemy::Enemy() : m_blockIndex(0), calculateNewPath(true)
 {
 	m_rectangle.pos.x = 0;
 	m_rectangle.pos.y = 0;
@@ -9,7 +9,7 @@ Enemy::Enemy() : m_blockIndex(0)
 	m_colour = { 255, 0, 0, 255 };
 }
 
-Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex) : m_blockIndex(blockIndex)
+Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex) : m_blockIndex(blockIndex), calculateNewPath(true)
 {
 	m_rectangle.pos.x = position.x;
 	m_rectangle.pos.y = position.y;
@@ -48,14 +48,40 @@ void Enemy::setBlockIndex(int value)
 	m_blockIndex = value;
 }
 
-vector<NodeBlock*> Enemy::getOpenList()
+bool Enemy::getFoundPath() const
 {
-	return m_openList;
+	return foundPath;
 }
 
-vector<NodeBlock*> Enemy::getClosedList()
+void Enemy::setFoundPath(bool value)
 {
-	return m_closeList;
+	foundPath = value;
+}
+
+bool Enemy::getCalculateNewPath() const
+{
+	return calculateNewPath;
+}
+
+void Enemy::setCalculateNewPath(bool value)
+{
+	calculateNewPath = value;
+}
+
+void Enemy::setPath(vector<NodeBlock*> value)
+{
+	m_path.clear();
+	m_path = value;
+}
+
+vector<NodeBlock*> Enemy::getPath() const
+{
+	return m_path;
+}
+
+void Enemy::clearPath()
+{
+	m_path.clear();
 }
 
 void Enemy::render(Renderer * r)

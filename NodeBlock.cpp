@@ -88,9 +88,9 @@ void NodeBlock::setSolidColour(Colour val)
 
 void NodeBlock::setColour(Colour val)
 {
-	m_colour.r += val.r;
-	m_colour.g += val.g;
-	m_colour.b += val.b;
+	m_colour.r = val.r;
+	m_colour.g = val.g;
+	m_colour.b = val.b;
 }
 
 void NodeBlock::setMarked(bool value)

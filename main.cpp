@@ -16,13 +16,6 @@ int main(int argc, char** argv)
 	
 	game->Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
 
-	Loop(game);
-
-	return 0;
-}
-
-void Loop(Game * game) 
-{
 	while (game->IsRunning())
 	{
 		game->HandleEvents();
@@ -32,5 +25,7 @@ void Loop(Game * game)
 
 	game->CleanUp();
 	game->UnloadContent();//create GameLoop
+
+	return 0;
 }
 

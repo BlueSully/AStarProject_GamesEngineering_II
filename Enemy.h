@@ -13,9 +13,9 @@ private:
 	int m_blockIndex;
 	Rect m_rectangle;
 	Colour m_colour;
-	vector<NodeBlock *> m_openList;
-	vector<NodeBlock *> m_closeList;
 	vector<NodeBlock *> m_path;
+	bool foundPath;
+	bool calculateNewPath;
 public:
 	Enemy();
 	Enemy(Point2D position, Size2D bounds, int blockIndex);
@@ -28,7 +28,14 @@ public:
 	Size2D getBounds() const;
 	int getBlockIndex() const;
 	void setBlockIndex(int value);
-	vector<NodeBlock *> getOpenList();
-	vector<NodeBlock *> getClosedList();
+	bool getFoundPath() const;
+	void setFoundPath(bool value);
+	bool getCalculateNewPath() const;
+	void setCalculateNewPath(bool value);
+
+	void Enemy::setPath(vector<NodeBlock*> value);
+	vector<NodeBlock *> getPath() const;
+	void clearPath();
+
 };
 

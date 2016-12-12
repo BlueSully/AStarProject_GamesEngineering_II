@@ -7,6 +7,10 @@
 #include "Enemy.h"
 #include "Renderer.h"
 #include "MovementType.h"
+#include "SDL_thread.h"
+#include "SDL_timer.h"
+#include <iostream>
+
 
 class Game
 {
@@ -24,8 +28,25 @@ public:
 	bool IsRunning();
 	void CleanUp();
 
+	static int runAstar(void *ptr);
+
+	Grid * getGrid() const 
+	{
+		return m_grid;
+	}
+	Player * getPlayer() const
+	{
+		return m_player;
+	}
+	vector<Enemy *> getEnemies() const
+	{
+		return m_enemies;
+	}
+
 private:
 	bool debug;
+	bool playerOnSameBlock;
+	
 	bool m_running;
 
 	Grid * m_grid;
@@ -33,6 +54,7 @@ private:
 	vector<Enemy *> m_enemies;
 	Renderer m_renderer;
 
+	int lastPlayerBlock;
 	int m_enemySize;
 	Size2D m_winSize;
 	Size2D m_worldBounds;
@@ -40,7 +62,7 @@ private:
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
 
-	SDL_Thread *thread;
-	int threadReturnValue;
+	vector<SDL_Thread *> threadingQueue;
+	SDL_mutex *mutex;
 };
 #endif
