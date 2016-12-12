@@ -2,6 +2,7 @@
 #define GAME_H
 #include "Debug.h"
 #include <SDL.h>
+#include <time.h>   
 #include "Grid.h"
 #include "Player.h"
 #include "Enemy.h"

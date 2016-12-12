@@ -20,23 +20,23 @@ int Game::runAstar(void *ptr)
 	Game * gamePointer = dataPointer->first;
 	int currentEnemyIndex = dataPointer->second;
 
-	//while (true) 
-	//{
-	//	if ((gamePointer->getGrid()->isGridInitialised() &&
-	//		gamePointer->getGrid() != nullptr) &&
-	//		!gamePointer->getEnemies()[currentEnemyIndex]->getFoundPath())
-	//	{	
-	//		path = gamePointer->getGrid()->oldAStarAlgorithm(&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getEnemies()[currentEnemyIndex]->getBlockIndex()),
-	//														 &gamePointer->getGrid()->getBlockAtIndex(gamePointer->getPlayer()->getBlockIndex()));
+	//Work on a SDL_COND to only signal this code when it is needed
+	/*while (!gamePointer->getEnemies()[currentEnemyIndex]->getFoundPath()) 
+	{*/
+		if ((gamePointer->getGrid()->isGridInitialised() &&
+			gamePointer->getGrid() != nullptr))
+		{	
+			path = gamePointer->getGrid()->oldAStarAlgorithm(&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getEnemies()[currentEnemyIndex]->getBlockIndex()),
+															 &gamePointer->getGrid()->getBlockAtIndex(gamePointer->getPlayer()->getBlockIndex()));
 
-	//		printf("Thread %d called \n", currentEnemyIndex);
+			printf("Thread %d called \n", currentEnemyIndex);
 
-	//		gamePointer->getEnemies()[currentEnemyIndex]->clearPath();
-	//		gamePointer->getEnemies()[currentEnemyIndex]->setPath(path);
-	//		gamePointer->getEnemies()[currentEnemyIndex]->setFoundPath(true);
-	//		
-	//		path.clear();
-	//	}
+			gamePointer->getEnemies()[currentEnemyIndex]->clearPath();
+			gamePointer->getEnemies()[currentEnemyIndex]->setPath(path);
+			gamePointer->getEnemies()[currentEnemyIndex]->setFoundPath(true);
+			
+			path.clear();
+		}
 	//}
 	
 	return currentEnemyIndex;
@@ -45,9 +45,9 @@ int Game::runAstar(void *ptr)
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
 	DEBUG_MSG("Game Init Called");
-	srand(static_cast<unsigned int>(NULL));
+	srand(static_cast<unsigned int>(time(NULL)));
 
-	mutex = SDL_CreateMutex();
+	//mutex = SDL_CreateMutex();
 	m_winSize = Size2D(static_cast<float>(width), static_cast<float>(height));
 	
 	//Creates our renderer, which looks after drawing and the window
@@ -86,7 +86,7 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
 
 			std::pair<Game *, int> astarPair = make_pair(this, i);
-			//threadingQueue.push_back(SDL_CreateThread(&Game::runAstar, "WorkerThread:" + i, &astarPair));		
+			threadingQueue.push_back(SDL_CreateThread(&Game::runAstar, "WorkerThread:" + i, &astarPair));		
 		}
 	}
 	
@@ -111,10 +111,10 @@ void Game::Render()
 		//Drawing Player
 		m_player->render(&m_renderer);
 
-		////Drawing Enemies
-		//for (int i = 0; i < m_enemySize; i++)
-		//{
-		//	m_enemies[i]->render(&m_renderer);
+		//Drawing Enemies
+		for (int i = 0; i < m_enemySize; i++)
+		{
+			m_enemies[i]->render(&m_renderer);
 
 		//	//if (SDL_LockMutex(mutex) == 0) 
 		//	//{			
@@ -128,7 +128,7 @@ void Game::Render()
 		//		}*/
 		//		//SDL_UnlockMutex(mutex);
 		//	//}
-		//}
+		}
 	}
 
 	m_renderer.present();

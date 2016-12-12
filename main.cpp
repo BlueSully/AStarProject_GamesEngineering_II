@@ -7,24 +7,21 @@
 
 using namespace std;
 
-
-void Loop(Game * game);
-
 int main(int argc, char** argv)
 {
-	Game* game = new Game();
+	Game game;
 	
-	game->Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
+	game.Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
 
-	while (game->IsRunning())
+	while (game.IsRunning())
 	{
-		game->HandleEvents();
-		game->Update(0.0f);
-		game->Render();
+		game.HandleEvents();
+		game.Update(0.0f);
+		game.Render();
 	}
 
-	game->CleanUp();
-	game->UnloadContent();//create GameLoop
+	game.CleanUp();
+	game.UnloadContent();//create GameLoop
 
 	return 0;
 }
