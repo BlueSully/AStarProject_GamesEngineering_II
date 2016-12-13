@@ -20,6 +20,7 @@ void NodeBlock::Init(float posX, float posY, float width, float height, BlockTyp
 	m_currentIndex = index;
 	initializeColour();
 	m_colour = m_originalColour;
+	m_isEnemyOccupying = false;
 }
 
 void NodeBlock::initializeColour()
@@ -100,6 +101,16 @@ void NodeBlock::setMarked(bool value)
 		m_colour.r = 100;
 		m_colour.g = 100; 
 	}
+}
+
+bool NodeBlock::getIsEnemyOccupying() const
+{
+	return m_isEnemyOccupying;
+}
+
+void NodeBlock::setIsEnemyOccupying(bool value)
+{
+	m_isEnemyOccupying = value;
 }
 
 void NodeBlock::setNeighbours(int gridSize, int currentIndex)

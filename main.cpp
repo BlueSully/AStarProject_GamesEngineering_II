@@ -9,14 +9,21 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+	Uint64 NOW = SDL_GetPerformanceCounter();
+	Uint64 LAST = 0;
+	float deltaTime = 0;
 	Game game;
 	
 	game.Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
 
 	while (game.IsRunning())
 	{
+		LAST = NOW;
+		NOW = SDL_GetPerformanceCounter();
+
+		deltaTime = static_cast<float>((NOW - LAST) * 1000 / SDL_GetPerformanceFrequency());
 		game.HandleEvents();
-		game.Update(0.0f);
+		game.Update(deltaTime);
 		game.Render();
 	}
 

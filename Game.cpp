@@ -15,30 +15,42 @@ Game::~Game()
 
 int Game::runAstar(void *ptr)
 {
-	vector<NodeBlock *> path;
+	
 	std::pair<Game *, int> * dataPointer = static_cast<std::pair<Game *, int> *>(ptr);
 	Game * gamePointer = dataPointer->first;
 	int currentEnemyIndex = dataPointer->second;
 
 	//Work on a SDL_COND to only signal this code when it is needed
-	/*while (!gamePointer->getEnemies()[currentEnemyIndex]->getFoundPath()) 
-	{*/
-		if ((gamePointer->getGrid()->isGridInitialised() &&
-			gamePointer->getGrid() != nullptr))
-		{	
-			path = gamePointer->getGrid()->oldAStarAlgorithm(&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getEnemies()[currentEnemyIndex]->getBlockIndex()),
-															 &gamePointer->getGrid()->getBlockAtIndex(gamePointer->getPlayer()->getBlockIndex()));
+	bool running = true;
+	while (running)
+	{
+		if (gamePointer->getEnemies()[currentEnemyIndex]->getCalculateNewPath())
+		{
+			//printf("Thread %d called \n", currentEnemyIndex);
 
-			printf("Thread %d called \n", currentEnemyIndex);
-
-			gamePointer->getEnemies()[currentEnemyIndex]->clearPath();
-			gamePointer->getEnemies()[currentEnemyIndex]->setPath(path);
+			//Do A*
+			gamePointer->getEnemies()[currentEnemyIndex]->setPath(gamePointer->getGrid()->oldAStarAlgorithm(&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getEnemies()[currentEnemyIndex]->getBlockIndex()),
+																											&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getPlayer()->getBlockIndex())));
+			//Found Path
 			gamePointer->getEnemies()[currentEnemyIndex]->setFoundPath(true);
-			
-			path.clear();
+			gamePointer->getEnemies()[currentEnemyIndex]->setCalculateNewPath(false);
+
+			if (SDL_LockMutex(gamePointer->getMutex()) == 0)
+			{
+				int size = gamePointer->getEnemies()[currentEnemyIndex]->getPath().size();
+				if (size > 0)
+				{
+					for (size_t j = 0; j < size; j++)
+					{
+						gamePointer->getEnemies()[currentEnemyIndex]->getPath()[j]->setColour(gamePointer->getEnemies()[currentEnemyIndex]->getPathColour());
+					}
+				}
+				//running = false;
+				SDL_UnlockMutex(gamePointer->getMutex());
+			}
 		}
-	//}
-	
+	}
+
 	return currentEnemyIndex;
 }
 
@@ -47,7 +59,7 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	DEBUG_MSG("Game Init Called");
 	srand(static_cast<unsigned int>(time(NULL)));
 
-	//mutex = SDL_CreateMutex();
+	mutex = SDL_CreateMutex();
 	m_winSize = Size2D(static_cast<float>(width), static_cast<float>(height));
 	
 	//Creates our renderer, which looks after drawing and the window
@@ -83,10 +95,13 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 			Point2D enemyPos = Point2D(m_grid->getBlockAtIndex(blockIndex).getPosition().x, m_grid->getBlockAtIndex(blockIndex).getPosition().y);
 			Size2D enemySize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
 
-			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex, Colour(rand() % 255, rand() % 255, rand() % 255)));
 
-			std::pair<Game *, int> astarPair = make_pair(this, i);
-			threadingQueue.push_back(SDL_CreateThread(&Game::runAstar, "WorkerThread:" + i, &astarPair));		
+			if (m_grid->isGridInitialised())
+			{
+				std::pair<Game *, int> astarPair = make_pair(this, i);
+				threadingQueue.push_back(SDL_CreateThread(&Game::runAstar, "WorkerThread:" + i, &astarPair));
+			}
 		}
 	}
 	
@@ -112,22 +127,9 @@ void Game::Render()
 		m_player->render(&m_renderer);
 
 		//Drawing Enemies
-		for (int i = 0; i < m_enemySize; i++)
+		for (int i = 0; i < m_enemies.size(); i++)
 		{
 			m_enemies[i]->render(&m_renderer);
-
-		//	//if (SDL_LockMutex(mutex) == 0) 
-		//	//{			
-		//		/*int size = m_enemies[i]->getPath().size();
-		//		if (size > 0)
-		//		{
-		//			for (size_t j = 0; j < size; j++)
-		//			{
-		//				m_enemies[i]->getPath()[j]->setColour(Colour(0, 50, 0));
-		//			}
-		//		}*/
-		//		//SDL_UnlockMutex(mutex);
-		//	//}
 		}
 	}
 
@@ -178,7 +180,7 @@ void Game::Reset(int gridSize, int enemysize)
 			Point2D enemyPos = Point2D(m_grid->getBlockAtIndex(blockIndex).getPosition().x, m_grid->getBlockAtIndex(blockIndex).getPosition().y);
 			Size2D enemySize = Size2D((m_worldBounds.w / gridSize), (m_worldBounds.h / gridSize));
 
-			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex, Colour(rand() % 255, rand() % 255, rand() % 255)));
 		}
 	}
 }
@@ -199,19 +201,15 @@ void Game::Update(float deltaTime)
 			playerOnSameBlock = true;
 		}
 
-		for (size_t i = 0; i < m_enemySize; i++)
+		for (size_t i = 0; i < m_enemies.size(); i++)
 		{				
-			if (!playerOnSameBlock)
+			if (!playerOnSameBlock && m_enemies[i]->getCalculateNewPath() == false)
 			{				
 				m_enemies[i]->setCalculateNewPath(true);
 				lastPlayerBlock = m_player->getBlockIndex();
 			}
 
-			if (m_enemies[i]->getCalculateNewPath())
-			{
-				m_enemies[i]->setFoundPath(false);
-				m_enemies[i]->setCalculateNewPath(false);
-			}
+			m_enemies[i]->Update(deltaTime);
 		}	
 	}
 }
@@ -315,7 +313,6 @@ void Game::UnloadContent()
 void Game::CleanUp()
 {
 	DEBUG_MSG("Cleaning Up");
-	//SDL_KillThread(thread);
 
 	SDL_DestroyWindow(m_p_Window);
 	SDL_DestroyRenderer(m_p_Renderer);

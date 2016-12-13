@@ -12,7 +12,6 @@
 #include "SDL_timer.h"
 #include <iostream>
 
-
 class Game
 {
 public:
@@ -43,6 +42,10 @@ public:
 	{
 		return m_enemies;
 	}
+	SDL_mutex * getMutex() const 
+	{
+		return mutex;
+	}
 
 private:
 	bool debug;
@@ -63,7 +66,9 @@ private:
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
 
+
+	int maxNumThreads;
 	vector<SDL_Thread *> threadingQueue;
-	SDL_mutex *mutex;
+	SDL_mutex * mutex;
 };
 #endif

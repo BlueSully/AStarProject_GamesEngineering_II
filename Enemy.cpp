@@ -7,15 +7,18 @@ Enemy::Enemy() : m_blockIndex(0), calculateNewPath(true)
 	m_rectangle.size.w = 1;
 	m_rectangle.size.h = 1;
 	m_colour = { 255, 0, 0, 255 };
+	elapsedTime = 0;
 }
 
-Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex) : m_blockIndex(blockIndex), calculateNewPath(true)
+Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour) : m_blockIndex(blockIndex), calculateNewPath(true)
 {
 	m_rectangle.pos.x = position.x;
 	m_rectangle.pos.y = position.y;
 	m_rectangle.size.w = bounds.w;
 	m_rectangle.size.h = bounds.h;
 	m_colour = { 50, 0, 255, 255 };
+	m_pathColour = pColour;
+	elapsedTime = 0;
 }
 
 Enemy::~Enemy()
@@ -23,9 +26,34 @@ Enemy::~Enemy()
 
 }
 
-void Enemy::update()
+void Enemy::Update(float deltatime)
 {
+	elapsedTime += deltatime;
 
+	std::cout << elapsedTime << endl;
+	
+	if (m_path.size() > 0 && elapsedTime > 50)
+	{
+		nextPathBlockValue++;
+		NodeBlock * nextBlock = getNextBlock(nextPathBlockValue);
+		if (nextBlock != nullptr)
+		{
+			curBlock = nextBlock;
+			m_rectangle.pos.x = curBlock->getPosition().x;
+			m_rectangle.pos.y = curBlock->getPosition().y;
+			m_blockIndex = nextBlock->getIndex();		
+		}
+		elapsedTime = 0;
+	}
+}
+
+NodeBlock * Enemy::getNextBlock(int currentblock)
+{
+	int value = (m_path.size() - currentblock) - 1;
+	if (!(value < 0))
+		return m_path[value];
+	else
+		return nullptr;
 }
 
 Point2D Enemy::getPosition() const
@@ -46,6 +74,11 @@ int Enemy::getBlockIndex() const
 void Enemy::setBlockIndex(int value)
 {
 	m_blockIndex = value;
+}
+
+Colour Enemy::getPathColour() const
+{
+	return m_pathColour;
 }
 
 bool Enemy::getFoundPath() const
@@ -70,6 +103,7 @@ void Enemy::setCalculateNewPath(bool value)
 
 void Enemy::setPath(vector<NodeBlock*> value)
 {
+	nextPathBlockValue = 0;
 	m_path.clear();
 	m_path = value;
 }
