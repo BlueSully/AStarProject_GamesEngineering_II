@@ -30,8 +30,6 @@ void Enemy::Update(float deltatime, GameSpeed speed)
 {
 	elapsedTime += deltatime;
 
-	std::cout << elapsedTime << endl;
-	
 	if (speed == GameSpeed::SLOW)
 	{
 		TimeToMove = 1000;

@@ -13,45 +13,35 @@ Game::~Game()
 
 }
 
-int Game::runAstar(void *ptr)
+void Game::runAstar(int enemyIndex)
 {
-	
-	std::pair<Game *, int> * dataPointer = static_cast<std::pair<Game *, int> *>(ptr);
-	Game * gamePointer = dataPointer->first;
-	int currentEnemyIndex = dataPointer->second;
+	printf("RUN ASTAR \n");
 
-	//Work on a SDL_COND to only signal this code when it is needed
-	bool running = true;
-	while (running)
+	if (getEnemies()[enemyIndex]->getCalculateNewPath())
 	{
-		if (gamePointer->getEnemies()[currentEnemyIndex]->getCalculateNewPath())
+
+		//Do A*
+		m_enemies[enemyIndex]->setPath(m_grid->oldAStarAlgorithm(&m_grid->getBlockAtIndex(m_enemies[enemyIndex]->getBlockIndex()),
+			&m_grid->getBlockAtIndex(m_player->getBlockIndex())));
+
+		//Found Path
+		m_enemies[enemyIndex]->setFoundPath(true);
+		m_enemies[enemyIndex]->setCalculateNewPath(false);
+
+		/*if (SDL_LockMutex(gamePointer->getMutex()) == 0)
+		{*/
+		int size = m_enemies[enemyIndex]->getPath().size();
+		if (size > 0)
 		{
-			//printf("Thread %d called \n", currentEnemyIndex);
-
-			//Do A*
-			gamePointer->getEnemies()[currentEnemyIndex]->setPath(gamePointer->getGrid()->oldAStarAlgorithm(&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getEnemies()[currentEnemyIndex]->getBlockIndex()),
-																											&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getPlayer()->getBlockIndex())));
-			//Found Path
-			gamePointer->getEnemies()[currentEnemyIndex]->setFoundPath(true);
-			gamePointer->getEnemies()[currentEnemyIndex]->setCalculateNewPath(false);
-
-			if (SDL_LockMutex(gamePointer->getMutex()) == 0)
+			for (size_t j = 0; j < size; j++)
 			{
-				int size = gamePointer->getEnemies()[currentEnemyIndex]->getPath().size();
-				if (size > 0)
-				{
-					for (size_t j = 0; j < size; j++)
-					{
-						gamePointer->getEnemies()[currentEnemyIndex]->getPath()[j]->setColour(gamePointer->getEnemies()[currentEnemyIndex]->getPathColour());
-					}
-				}
-				//running = false;
-				SDL_UnlockMutex(gamePointer->getMutex());
+				m_enemies[enemyIndex]->getPath()[j]->setColour(m_enemies[enemyIndex]->getPathColour());
 			}
 		}
+		//running = false;
+	//	SDL_UnlockMutex(gamePointer->getMutex());
+	//}
 	}
-
-	return currentEnemyIndex;
 }
 
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
@@ -79,6 +69,9 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	//Setup Grid
 	m_grid = new Grid(static_cast<int>(vpWidth), Size2D(m_worldBounds.w / vpWidth, m_worldBounds.h / vpWidth));
 
+	m_threadPool = ThreadPool::getInstance();
+	m_threadPool->createWorkers();
+
 	if (m_grid != nullptr)
 	{
 		//Setup Player
@@ -88,7 +81,7 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 		Size2D playerSize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
 		m_player = new Player(playerPos, playerSize, playerBlockIndex);
 
-		m_enemySize = 5;
+		m_enemySize = 15;
 		//Setup Enemies
 		for (int i = 0; i < m_enemySize; i++)
 		{
@@ -98,15 +91,8 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 
 			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex, Colour(rand() % 255, rand() % 255, 0)));
 
-			int maxThreads;
-			if (maxNumThreads > 5) {
-				maxThreads = 5;
-			}
-			if (m_grid->isGridInitialised() && threadingQueue.size() < maxThreads)
-			{
-				std::pair<Game *, int> astarPair = make_pair(this, i);
-				threadingQueue.push_back(SDL_CreateThread(&Game::runAstar, "WorkerThread:" + i, &astarPair));
-			}
+			std::function<void()> func = std::bind(&Game::runAstar, this, i);//create an Astar on this enemy
+			m_threadPool->createJob(func);
 		}
 	}
 	
@@ -132,7 +118,7 @@ void Game::Render()
 		m_player->render(&m_renderer);
 
 		//Drawing Enemies
-		for (int i = 0; i < m_enemies.size(); i++)
+		for (size_t i = 0; i < m_enemies.size(); i++)
 		{
 			m_enemies[i]->render(&m_renderer);
 		}

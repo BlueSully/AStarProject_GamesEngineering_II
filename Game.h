@@ -8,10 +8,7 @@
 #include "Enemy.h"
 #include "Renderer.h"
 #include "MovementType.h"
-#include "SDL_thread.h"
-#include "SDL_timer.h"
-#include <iostream>
-#include <thread>
+#include "ThreadPool.h"
 
 class Game
 {
@@ -29,7 +26,8 @@ public:
 	bool IsRunning();
 	void CleanUp();
 
-	static int runAstar(void *ptr);
+
+	void runAstar(int enemyIndex);
 
 	Grid * getGrid() const 
 	{
@@ -67,7 +65,7 @@ private:
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
 
-
+	ThreadPool * m_threadPool;
 	int maxNumThreads;
 	vector<SDL_Thread *> threadingQueue;
 	SDL_mutex * mutex;
