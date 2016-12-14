@@ -26,25 +26,7 @@ public:
 	bool IsRunning();
 	void CleanUp();
 
-
 	void runAstar(int enemyIndex);
-
-	Grid * getGrid() const 
-	{
-		return m_grid;
-	}
-	Player * getPlayer() const
-	{
-		return m_player;
-	}
-	vector<Enemy *> getEnemies() const
-	{
-		return m_enemies;
-	}
-	SDL_mutex * getMutex() const 
-	{
-		return mutex;
-	}
 
 private:
 	bool debug;
@@ -66,8 +48,6 @@ private:
 	SDL_Renderer* m_p_Renderer;
 
 	ThreadPool * m_threadPool;
-	int maxNumThreads;
-	vector<SDL_Thread *> threadingQueue;
 	SDL_mutex * mutex;
 };
 #endif

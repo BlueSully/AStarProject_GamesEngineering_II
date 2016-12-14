@@ -4,6 +4,8 @@ ThreadPool * ThreadPool::m_instance = nullptr;
 
 ThreadPool::ThreadPool()
 {
+	m_jobmutex = SDL_CreateMutex();
+	sem = SDL_CreateSemaphore(0);
 	m_maxNumThreads = std::thread::hardware_concurrency();
 	m_numberOfJobs = 0;
 }
@@ -28,8 +30,9 @@ int ThreadPool::workerThread(void * ptr)
 	int threadID = *(static_cast<int *>(ptr));
 	while (true) 
 	{
+		SDL_SemWait(thr_pool->sem);
 		auto job = thr_pool->doJob();//Get Job
-		if (!(job.first < 0)) 
+		if (job.first >= 0) 
 		{
 			printf("Job: %d running on Thread: %d \n", job.first, threadID);
 			job.second();
@@ -41,16 +44,14 @@ void ThreadPool::createWorkers()
 {
 	int numThreads;
 
-	if (m_maxNumThreads > 5)
-	{
-		numThreads = 5;
-	}
-	else
-	{
+	//if (m_maxNumThreads > 5)
+	//{
+	//	numThreads = 5;
+	//}
+	//else
+	//{
 		numThreads = m_maxNumThreads;
-	}
-
-	numThreads = 2;
+	//}
 
 	if (static_cast<int>(m_threadingQueue.size()) < numThreads)
 	{
@@ -62,23 +63,21 @@ void ThreadPool::createWorkers()
 	}
 }
 
-int ThreadPool::getJobID() const
-{
-	return 0;
-}
-
 std::pair<int, std::function<void()>> ThreadPool::doJob()
 {
-	std::pair<int, std::function<void()>> job;
-	if (m_job.empty()) 
-	//if no jobs to work on give false job
+	if (SDL_LockMutex(m_jobmutex) == 0)
 	{
-		return std::make_pair(-1, std::function<void()>());
-	}
-	else if (!m_job.empty())
-	{
+		if (m_job.empty())
+			//if no jobs to work on give false job
+		{
+			SDL_UnlockMutex(m_jobmutex);
+			return std::make_pair(-1, std::function<void()>());
+		}
+
+		std::pair<int, std::function<void()>> job;
 		job = m_job.front();
 		m_job.pop_front();
+		SDL_UnlockMutex(m_jobmutex);
 		return job;
 	}
 }
@@ -86,8 +85,10 @@ std::pair<int, std::function<void()>> ThreadPool::doJob()
 void ThreadPool::createJob(std::function<void()> func)
 //Method for Adding a Function;
 {
-	int jobID = m_numberOfJobs;
-	//NEED TO LOCK THIS
+	SDL_LockMutex(m_jobmutex);
+	int jobID = m_numberOfJobs;	
 	m_job.push_back(std::make_pair(jobID, func));
 	m_numberOfJobs++;
+	SDL_SemPost(sem);
+	SDL_UnlockMutex(m_jobmutex);
 }

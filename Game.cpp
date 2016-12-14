@@ -17,7 +17,7 @@ void Game::runAstar(int enemyIndex)
 {
 	printf("RUN ASTAR \n");
 
-	if (getEnemies()[enemyIndex]->getCalculateNewPath())
+	if (m_enemies[enemyIndex]->getCalculateNewPath())
 	{
 
 		//Do A*
@@ -28,25 +28,23 @@ void Game::runAstar(int enemyIndex)
 		m_enemies[enemyIndex]->setFoundPath(true);
 		m_enemies[enemyIndex]->setCalculateNewPath(false);
 
-		/*if (SDL_LockMutex(gamePointer->getMutex()) == 0)
-		{*/
-		int size = m_enemies[enemyIndex]->getPath().size();
-		if (size > 0)
+		if (SDL_LockMutex(mutex) == 0)
 		{
-			for (size_t j = 0; j < size; j++)
+			int size = m_enemies[enemyIndex]->getPath().size();
+			if (size > 0)
 			{
-				m_enemies[enemyIndex]->getPath()[j]->setColour(m_enemies[enemyIndex]->getPathColour());
+				for (size_t j = 0; j < size; j++)
+				{
+					m_enemies[enemyIndex]->getPath()[j]->setColour(m_enemies[enemyIndex]->getPathColour());
+				}
 			}
+			SDL_UnlockMutex(mutex);
 		}
-		//running = false;
-	//	SDL_UnlockMutex(gamePointer->getMutex());
-	//}
 	}
 }
 
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
-	maxNumThreads = std::thread::hardware_concurrency();
 	DEBUG_MSG("Game Init Called");
 	srand(static_cast<unsigned int>(time(NULL)));
 
@@ -58,7 +56,7 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	float aspectRatio = m_winSize.w / m_winSize.h;
 	
 	//How many Blocks wide is the blocks
-	float vpWidth = 30;
+	float vpWidth = 100;
 	m_worldBounds = Size2D(vpWidth, vpWidth / aspectRatio);
 	Point2D vpBottomLeft(-m_worldBounds.w / 2, -m_worldBounds.h / 2);
 
@@ -81,7 +79,7 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 		Size2D playerSize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
 		m_player = new Player(playerPos, playerSize, playerBlockIndex);
 
-		m_enemySize = 15;
+		m_enemySize = 50;
 		//Setup Enemies
 		for (int i = 0; i < m_enemySize; i++)
 		{
