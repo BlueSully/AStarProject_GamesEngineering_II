@@ -1,21 +1,24 @@
 #include "Enemy.h"
 
-Enemy::Enemy() : m_blockIndex(0)
+Enemy::Enemy() : m_blockIndex(0), calculateNewPath(true)
 {
 	m_rectangle.pos.x = 0;
 	m_rectangle.pos.y = 0;
 	m_rectangle.size.w = 1;
 	m_rectangle.size.h = 1;
 	m_colour = { 255, 0, 0, 255 };
+	elapsedTime = 0;
 }
 
-Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex) : m_blockIndex(blockIndex)
+Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour) : m_blockIndex(blockIndex), calculateNewPath(true)
 {
 	m_rectangle.pos.x = position.x;
 	m_rectangle.pos.y = position.y;
 	m_rectangle.size.w = bounds.w;
 	m_rectangle.size.h = bounds.h;
 	m_colour = { 50, 0, 255, 255 };
+	m_pathColour = pColour;
+	elapsedTime = 0;
 }
 
 Enemy::~Enemy()
@@ -23,9 +26,47 @@ Enemy::~Enemy()
 
 }
 
-void Enemy::update()
+void Enemy::Update(float deltatime, GameSpeed speed)
 {
+	elapsedTime += deltatime;
 
+	std::cout << elapsedTime << endl;
+	
+	if (speed == GameSpeed::SLOW)
+	{
+		TimeToMove = 1000;
+	}
+	else if (speed == GameSpeed::NORMAL)
+	{
+		TimeToMove = 150;
+	}
+	else if (speed == GameSpeed::FAST)
+	{
+		TimeToMove = 50;
+	}
+
+	if (m_path.size() > 0 && elapsedTime > TimeToMove)
+	{
+		nextPathBlockValue++;
+		NodeBlock * nextBlock = getNextBlock(nextPathBlockValue);
+		if (nextBlock != nullptr)
+		{
+			curBlock = nextBlock;
+			m_rectangle.pos.x = curBlock->getPosition().x;
+			m_rectangle.pos.y = curBlock->getPosition().y;
+			m_blockIndex = nextBlock->getIndex();		
+		}
+		elapsedTime = 0;
+	}
+}
+
+NodeBlock * Enemy::getNextBlock(int currentblock)
+{
+	int value = (m_path.size() - currentblock) - 1;
+	if (!(value < 0))
+		return m_path[value];
+	else
+		return nullptr;
 }
 
 Point2D Enemy::getPosition() const
@@ -48,14 +89,46 @@ void Enemy::setBlockIndex(int value)
 	m_blockIndex = value;
 }
 
-vector<NodeBlock*> Enemy::getOpenList()
+Colour Enemy::getPathColour() const
 {
-	return m_openList;
+	return m_pathColour;
 }
 
-vector<NodeBlock*> Enemy::getClosedList()
+bool Enemy::getFoundPath() const
 {
-	return m_closeList;
+	return foundPath;
+}
+
+void Enemy::setFoundPath(bool value)
+{
+	foundPath = value;
+}
+
+bool Enemy::getCalculateNewPath() const
+{
+	return calculateNewPath;
+}
+
+void Enemy::setCalculateNewPath(bool value)
+{
+	calculateNewPath = value;
+}
+
+void Enemy::setPath(vector<NodeBlock*> value)
+{
+	nextPathBlockValue = 0;
+	m_path.clear();
+	m_path = value;
+}
+
+vector<NodeBlock*> Enemy::getPath() const
+{
+	return m_path;
+}
+
+void Enemy::clearPath()
+{
+	m_path.clear();
 }
 
 void Enemy::render(Renderer * r)

@@ -1,6 +1,5 @@
 ﻿#include "Grid.h"
 
-
 Grid::Grid()
 : m_totalNumberWalls(0),
 m_totalTouchingWalls(0),
@@ -228,6 +227,7 @@ void Grid::init(int amount, Size2D gridSize)
 			}
 		}
 	}
+
 	wallpos.clear();
 	m_gridInitialised = true;
 }
@@ -261,7 +261,6 @@ int Grid::getGridSize() const
 	return m_gridSize;
 }
 
-
 NodeBlock Grid::getBlockAtIndex(int index) const
 {
 	return m_blockList.at(index);
@@ -293,12 +292,12 @@ float Grid::heuristic_cost_estimate(NodeBlock *node, NodeBlock *goal, NodeBlock 
 	float dy1 = node->getPosition().y - goal->getPosition().y;
 	float dx2 = start->getPosition().x - goal->getPosition().x;
 	float dy2 = start->getPosition().y - goal->getPosition().y;
-	float cross = std::abs((dx1 * dy2) - (dx2 * dy1));
-	heuristic += (cross * 0.001f);
+
+	float cross = std::fabsf((dx1 * dy2) - (dx2 * dy1));
+	heuristic += (cross * 0.0001f);
 
 	return heuristic;
 }
-
 
 vector<NodeBlock> Grid::aStarAlgorithm(NodeBlock *start, NodeBlock *goal)
 {
@@ -393,7 +392,7 @@ vector<NodeBlock> Grid::aStarAlgorithm(NodeBlock *start, NodeBlock *goal)
 	return vector<NodeBlock>();
 }
 
-vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
+vector<NodeBlock *> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 {
 	std::map<NodeBlock*, AstarNode> openNodeData;
 
@@ -415,22 +414,16 @@ vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 
 	while (!openList.empty() && openList.size() < m_blockList.size())
 	{
-		/*std::make_heap(const_cast<NodeBlock **>(&openList.top()), const_cast<NodeBlock **>(&openList.top() + openList.size()), comparator);*/
 		NodeBlock *cur = openList.top();
-		cur->setColour(Colour(0, 20, 120));
 		
 		if ((*cur).getIndex() == goal->getIndex())//if current node equals goal
 		{
-			vector<NodeBlock> path;
+			vector<NodeBlock *> path;
 			while (openNodeData[cur].prevNode != nullptr)
 			{
-				openNodeData[cur].prevNode->setColour(Colour(255, 100, 0));
-				path.push_back(*(openNodeData[cur].prevNode));//add node to path				
+				//openNodeData[cur].prevNode->setColour(Colour(255, 100, 0));
+				path.push_back(openNodeData[cur].prevNode);//add node to path				
 				cur = openNodeData[cur].prevNode;
-			}
-			typedef std::map<NodeBlock*, AstarNode>::iterator it_type;
-			for (it_type iterator = openNodeData.begin(); iterator != openNodeData.end(); iterator++) {
-				printf("\nindex: %d fscore: %d", iterator->first->getIndex(), iterator->second.fScore);
 			}
 
 			return path;
@@ -493,23 +486,14 @@ vector<NodeBlock> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 				{				
 					openList.push(*iter);
 					openNodeData[*iter].closed = true;
-					std::make_heap(const_cast<NodeBlock **>(&openList.top()), const_cast<NodeBlock **>(&openList.top() + openList.size()), comparator);
+					//std::make_heap(const_cast<NodeBlock **>(&openList.top()), const_cast<NodeBlock **>(&openList.top() + openList.size()), comparator);
 				}
-				/*else
-				{
-
-				}*/
-				//(*iter)->setColour(Colour(0, 60, 0));
 			}
 		}
-		if (openNodeData[cur].fScore > 0) 
-		{
-			printf("\nindex: %d fscore: %d", cur->getIndex(), openNodeData[cur].fScore);
-		}
-		curNeighbourList.clear();//Clean neighbour looking list
-		
+		curNeighbourList.clear();//Clean neighbour looking list		
 	}
-	return vector<NodeBlock>();
+
+	return vector<NodeBlock *>();//Counldn't find path
 }
 
 // ASTAR PESUDO-CODE

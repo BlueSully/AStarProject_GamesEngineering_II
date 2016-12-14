@@ -3,6 +3,13 @@
 
 #include <iostream>
 
+enum GameSpeed 
+{
+	SLOW,
+	NORMAL,
+	FAST
+};
+
 class Point2D {
 public:
 	float x, y;

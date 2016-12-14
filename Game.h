@@ -2,11 +2,16 @@
 #define GAME_H
 #include "Debug.h"
 #include <SDL.h>
+#include <time.h>   
 #include "Grid.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Renderer.h"
 #include "MovementType.h"
+#include "SDL_thread.h"
+#include "SDL_timer.h"
+#include <iostream>
+#include <thread>
 
 class Game
 {
@@ -24,8 +29,29 @@ public:
 	bool IsRunning();
 	void CleanUp();
 
+	static int runAstar(void *ptr);
+
+	Grid * getGrid() const 
+	{
+		return m_grid;
+	}
+	Player * getPlayer() const
+	{
+		return m_player;
+	}
+	vector<Enemy *> getEnemies() const
+	{
+		return m_enemies;
+	}
+	SDL_mutex * getMutex() const 
+	{
+		return mutex;
+	}
+
 private:
 	bool debug;
+	bool playerOnSameBlock;
+	
 	bool m_running;
 
 	Grid * m_grid;
@@ -33,6 +59,7 @@ private:
 	vector<Enemy *> m_enemies;
 	Renderer m_renderer;
 
+	int lastPlayerBlock;
 	int m_enemySize;
 	Size2D m_winSize;
 	Size2D m_worldBounds;
@@ -40,7 +67,9 @@ private:
 	SDL_Window* m_p_Window;
 	SDL_Renderer* m_p_Renderer;
 
-	SDL_Thread *thread;
-	int threadReturnValue;
+
+	int maxNumThreads;
+	vector<SDL_Thread *> threadingQueue;
+	SDL_mutex * mutex;
 };
 #endif

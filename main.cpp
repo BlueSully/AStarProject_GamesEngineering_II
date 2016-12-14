@@ -7,30 +7,29 @@
 
 using namespace std;
 
-
-void Loop(Game * game);
-
 int main(int argc, char** argv)
 {
-	Game* game = new Game();
+	Uint64 NOW = SDL_GetPerformanceCounter();
+	Uint64 LAST = 0;
+	float deltaTime = 0;
+	Game game;
 	
-	game->Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
+	game.Initialize("AStar Threading", 300, 100, 800, 600, SDL_WINDOW_SHOWN);
 
-	Loop(game);
-
-	return 0;
-}
-
-void Loop(Game * game) 
-{
-	while (game->IsRunning())
+	while (game.IsRunning())
 	{
-		game->HandleEvents();
-		game->Update(0.0f);
-		game->Render();
+		LAST = NOW;
+		NOW = SDL_GetPerformanceCounter();
+
+		deltaTime = static_cast<float>((NOW - LAST) * 1000 / SDL_GetPerformanceFrequency());
+		game.HandleEvents();
+		game.Update(deltaTime);
+		game.Render();
 	}
 
-	game->CleanUp();
-	game->UnloadContent();//create GameLoop
+	game.CleanUp();
+	game.UnloadContent();//create GameLoop
+
+	return 0;
 }
 

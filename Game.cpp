@@ -1,11 +1,9 @@
 #include "Game.h"
 #include <iostream>
-#include <thread>
-
 
 using namespace std;
 
-Game::Game() : m_running(false)
+Game::Game() : m_running(false), playerOnSameBlock(true)
 {
 
 }
@@ -15,24 +13,54 @@ Game::~Game()
 
 }
 
-static int TestThread(void *ptr)
+int Game::runAstar(void *ptr)
 {
-	int cnt;
+	
+	std::pair<Game *, int> * dataPointer = static_cast<std::pair<Game *, int> *>(ptr);
+	Game * gamePointer = dataPointer->first;
+	int currentEnemyIndex = dataPointer->second;
 
-	for (cnt = 0; cnt < 30; ++cnt) 
+	//Work on a SDL_COND to only signal this code when it is needed
+	bool running = true;
+	while (running)
 	{
-		printf("\nThread counter: %d", cnt);
-		SDL_Delay(150);
+		if (gamePointer->getEnemies()[currentEnemyIndex]->getCalculateNewPath())
+		{
+			//printf("Thread %d called \n", currentEnemyIndex);
+
+			//Do A*
+			gamePointer->getEnemies()[currentEnemyIndex]->setPath(gamePointer->getGrid()->oldAStarAlgorithm(&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getEnemies()[currentEnemyIndex]->getBlockIndex()),
+																											&gamePointer->getGrid()->getBlockAtIndex(gamePointer->getPlayer()->getBlockIndex())));
+			//Found Path
+			gamePointer->getEnemies()[currentEnemyIndex]->setFoundPath(true);
+			gamePointer->getEnemies()[currentEnemyIndex]->setCalculateNewPath(false);
+
+			if (SDL_LockMutex(gamePointer->getMutex()) == 0)
+			{
+				int size = gamePointer->getEnemies()[currentEnemyIndex]->getPath().size();
+				if (size > 0)
+				{
+					for (size_t j = 0; j < size; j++)
+					{
+						gamePointer->getEnemies()[currentEnemyIndex]->getPath()[j]->setColour(gamePointer->getEnemies()[currentEnemyIndex]->getPathColour());
+					}
+				}
+				//running = false;
+				SDL_UnlockMutex(gamePointer->getMutex());
+			}
+		}
 	}
 
-	return cnt;
+	return currentEnemyIndex;
 }
 
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
+	maxNumThreads = std::thread::hardware_concurrency();
 	DEBUG_MSG("Game Init Called");
 	srand(static_cast<unsigned int>(time(NULL)));
 
+	mutex = SDL_CreateMutex();
 	m_winSize = Size2D(static_cast<float>(width), static_cast<float>(height));
 	
 	//Creates our renderer, which looks after drawing and the window
@@ -54,33 +82,36 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 	if (m_grid != nullptr)
 	{
 		//Setup Player
-		int playerBlockIndex = static_cast<int>(((vpWidth / 2)) * (vpWidth / 3) * 5);
-
+		int playerBlockIndex = static_cast<int>(vpWidth - 1);
+		lastPlayerBlock = playerBlockIndex;
 		Point2D playerPos = Point2D(m_grid->getBlockAtIndex(playerBlockIndex).getPosition().x, m_grid->getBlockAtIndex(playerBlockIndex).getPosition().y);
 		Size2D playerSize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
 		m_player = new Player(playerPos, playerSize, playerBlockIndex);
 
-		m_enemySize = 1;
+		m_enemySize = 5;
 		//Setup Enemies
 		for (int i = 0; i < m_enemySize; i++)
 		{
 			int blockIndex = (m_grid->getGridSize() * m_grid->getGridSize()) - (5 + (2 * i));
 			Point2D enemyPos = Point2D(m_grid->getBlockAtIndex(blockIndex).getPosition().x, m_grid->getBlockAtIndex(blockIndex).getPosition().y);
 			Size2D enemySize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
-			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+
+			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex, Colour(rand() % 255, rand() % 255, 0)));
+
+			int maxThreads;
+			if (maxNumThreads > 5) {
+				maxThreads = 5;
+			}
+			if (m_grid->isGridInitialised() && threadingQueue.size() < maxThreads)
+			{
+				std::pair<Game *, int> astarPair = make_pair(this, i);
+				threadingQueue.push_back(SDL_CreateThread(&Game::runAstar, "WorkerThread:" + i, &astarPair));
+			}
 		}
 	}
 	
+	
 	m_running = true;
-
-	//printf("\nSimple SDL_CreateThread test:");
-	//// Simply create a thread
-	//thread = SDL_CreateThread(TestThread, "TestThread", (void *)NULL);
-
-	//if (NULL == thread)
-	//{
-	//	printf("\nSDL_CreateThread failed: %s\n", SDL_GetError());
-	//}
 }
 
 void Game::LoadContent()
@@ -101,9 +132,9 @@ void Game::Render()
 		m_player->render(&m_renderer);
 
 		//Drawing Enemies
-		for (size_t i = 0; i < 5; i++)
+		for (int i = 0; i < m_enemies.size(); i++)
 		{
-			m_enemies[0]->render(&m_renderer);
+			m_enemies[i]->render(&m_renderer);
 		}
 	}
 
@@ -153,18 +184,38 @@ void Game::Reset(int gridSize, int enemysize)
 			int blockIndex = (m_grid->getGridSize() * m_grid->getGridSize()) - (5 + (2 * i));
 			Point2D enemyPos = Point2D(m_grid->getBlockAtIndex(blockIndex).getPosition().x, m_grid->getBlockAtIndex(blockIndex).getPosition().y);
 			Size2D enemySize = Size2D((m_worldBounds.w / gridSize), (m_worldBounds.h / gridSize));
-			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex));
+
+			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex, Colour(rand() % 255, rand() % 255, rand() % 255)));
 		}
 	}
 }
 
 void Game::Update(float deltaTime)
 {
-	if (m_grid->isGridInitialised() && m_grid != nullptr && !debug)
-	{
-		m_grid->resetGrid();
-		vector<NodeBlock> path = m_grid->oldAStarAlgorithm(&m_grid->getBlockAtIndex(m_enemies[0]->getBlockIndex()), &m_grid->getBlockAtIndex(m_player->getBlockIndex()));
-		debug = true;
+	//printf("threadSize %d\n", threadingQueue.size());
+	if (m_grid->isGridInitialised() && m_grid != nullptr)
+	{		
+		int playerIndex = m_player->getBlockIndex();
+		if (m_player->getBlockIndex() != lastPlayerBlock)
+		{
+			playerOnSameBlock = false;
+			m_grid->resetGrid();
+		}
+		else
+		{
+			playerOnSameBlock = true;
+		}
+
+		for (size_t i = 0; i < m_enemies.size(); i++)
+		{				
+			if (!playerOnSameBlock && m_enemies[i]->getCalculateNewPath() == false)
+			{				
+				m_enemies[i]->setCalculateNewPath(true);
+				lastPlayerBlock = m_player->getBlockIndex();
+			}
+
+			m_enemies[i]->Update(deltaTime, GameSpeed::FAST);
+		}	
 	}
 }
 
@@ -190,6 +241,7 @@ void Game::HandleEvents()
 					//can move right and Update
 					m_player->move(MovementDirection::MOVE_RIGHT);
 					m_player->setBlockIndex(m_player->getBlockIndex() + m_grid->getGridSize());
+					playerOnSameBlock = false;
 				}
 				break;
 			case SDLK_a:
@@ -199,6 +251,7 @@ void Game::HandleEvents()
 					//can move Left and Update
 					m_player->move(MovementDirection::MOVE_LEFT);
 					m_player->setBlockIndex(m_player->getBlockIndex() - m_grid->getGridSize());
+					playerOnSameBlock = false;
 				}
 				break;
 			case SDLK_w:
@@ -208,6 +261,7 @@ void Game::HandleEvents()
 					//can move Up and Update
 					m_player->move(MovementDirection::MOVE_UP);
 					m_player->setBlockIndex(m_player->getBlockIndex() - 1);
+					playerOnSameBlock = false;
 				}
 				break;
 			case SDLK_s:
@@ -217,6 +271,7 @@ void Game::HandleEvents()
 					//can move down and Update
 					m_player->move(MovementDirection::MOVE_DOWN);
 					m_player->setBlockIndex(m_player->getBlockIndex() + 1);
+					playerOnSameBlock = false;
 				}
 				break;
 			case SDLK_x:
@@ -225,13 +280,13 @@ void Game::HandleEvents()
 				
 				//Changing Grid //Resetting grid with block and enemies 
 			case SDLK_1:
-				Reset(30, 1);
+				Reset(30, 2);
 				break;
 			case SDLK_2:
-				Reset(100, 1);
+				Reset(100, 2);
 				break;
 			case SDLK_3:
-				Reset(1000, 1);
+				Reset(1000, 2);
 				break;
 			default:
 				break;
@@ -263,7 +318,6 @@ void Game::UnloadContent()
 void Game::CleanUp()
 {
 	DEBUG_MSG("Cleaning Up");
-	//SDL_KillThread(thread);
 
 	SDL_DestroyWindow(m_p_Window);
 	SDL_DestroyRenderer(m_p_Renderer);

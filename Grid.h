@@ -67,24 +67,25 @@ private:
 	int m_topWallCount;
 	int m_bottomWallCount;
 	bool m_gridInitialised;
+
 public:
 	Grid();
 	Grid(int amount, Size2D gridSize);
-	void init(int amount, Size2D gridSize);
 	~Grid();
 
+	void init(int amount, Size2D gridSize);
 	void resetGrid();
-
 	bool isGridInitialised() const;
 	vector<NodeBlock> getBlockList() const;
 	int getGridSize() const;
 	NodeBlock getBlockAtIndex(int index) const;
 
 	void render(Renderer* render);
+
 	float heuristic_cost_estimate(NodeBlock *node, NodeBlock *goal) const;
 	float heuristic_cost_estimate(NodeBlock *node, NodeBlock *goal, NodeBlock *start) const;
 
-	vector<NodeBlock> oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal);
+	vector<NodeBlock *> oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal);
 	vector<NodeBlock> aStarAlgorithm(NodeBlock * start, NodeBlock * goal);
 };
 

@@ -19,6 +19,8 @@ private:
 	int m_rightBlockIndex;
 	int m_leftBlockIndex;
 
+	bool m_isEnemyOccupying;
+
 public:
 	NodeBlock();
 	~NodeBlock();
@@ -38,6 +40,9 @@ public:
 	void setSolidColour(Colour val);
 	void setColour(Colour val);
 	void setMarked(bool value);
+
+	bool getIsEnemyOccupying() const;
+	void setIsEnemyOccupying(bool value);
 
 	void setNeighbours(int gridSize, int currentIndex);
 	int getTopNeighbour() const;
