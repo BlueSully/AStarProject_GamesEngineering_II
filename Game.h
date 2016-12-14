@@ -11,6 +11,7 @@
 #include "SDL_thread.h"
 #include "SDL_timer.h"
 #include <iostream>
+#include <thread>
 
 class Game
 {

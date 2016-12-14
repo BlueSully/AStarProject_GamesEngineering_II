@@ -56,6 +56,7 @@ int Game::runAstar(void *ptr)
 
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
 {
+	maxNumThreads = std::thread::hardware_concurrency();
 	DEBUG_MSG("Game Init Called");
 	srand(static_cast<unsigned int>(time(NULL)));
 
@@ -95,9 +96,13 @@ void Game::Initialize(const char* title, int xpos, int ypos, int width, int heig
 			Point2D enemyPos = Point2D(m_grid->getBlockAtIndex(blockIndex).getPosition().x, m_grid->getBlockAtIndex(blockIndex).getPosition().y);
 			Size2D enemySize = Size2D((m_worldBounds.w / vpWidth), (m_worldBounds.h / vpWidth));
 
-			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex, Colour(rand() % 255, rand() % 255, rand() % 255)));
+			m_enemies.push_back(new Enemy(enemyPos, enemySize, blockIndex, Colour(rand() % 255, rand() % 255, 0)));
 
-			if (m_grid->isGridInitialised())
+			int maxThreads;
+			if (maxNumThreads > 5) {
+				maxThreads = 5;
+			}
+			if (m_grid->isGridInitialised() && threadingQueue.size() < maxThreads)
 			{
 				std::pair<Game *, int> astarPair = make_pair(this, i);
 				threadingQueue.push_back(SDL_CreateThread(&Game::runAstar, "WorkerThread:" + i, &astarPair));
@@ -209,7 +214,7 @@ void Game::Update(float deltaTime)
 				lastPlayerBlock = m_player->getBlockIndex();
 			}
 
-			m_enemies[i]->Update(deltaTime);
+			m_enemies[i]->Update(deltaTime, GameSpeed::FAST);
 		}	
 	}
 }

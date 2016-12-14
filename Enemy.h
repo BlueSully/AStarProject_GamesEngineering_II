@@ -20,12 +20,13 @@ private:
 	int nextPathBlockValue;
 	bool calculateNewPath;
 	float elapsedTime;
+	float TimeToMove;
 public:
 	Enemy();
 	Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour);
 	~Enemy();
 
-	void Update(float deltatime);
+	void Update(float deltatime, GameSpeed speed);
 	void render(Renderer * r);
 
 	Point2D getPosition() const;

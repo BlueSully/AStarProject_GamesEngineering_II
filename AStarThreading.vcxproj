@@ -96,6 +96,7 @@ xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BasicTypes.h" />
@@ -108,6 +109,7 @@ xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
     <ClInclude Include="MovementType.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="ThreadPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

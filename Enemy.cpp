@@ -26,13 +26,26 @@ Enemy::~Enemy()
 
 }
 
-void Enemy::Update(float deltatime)
+void Enemy::Update(float deltatime, GameSpeed speed)
 {
 	elapsedTime += deltatime;
 
 	std::cout << elapsedTime << endl;
 	
-	if (m_path.size() > 0 && elapsedTime > 50)
+	if (speed == GameSpeed::SLOW)
+	{
+		TimeToMove = 1000;
+	}
+	else if (speed == GameSpeed::NORMAL)
+	{
+		TimeToMove = 150;
+	}
+	else if (speed == GameSpeed::FAST)
+	{
+		TimeToMove = 50;
+	}
+
+	if (m_path.size() > 0 && elapsedTime > TimeToMove)
 	{
 		nextPathBlockValue++;
 		NodeBlock * nextBlock = getNextBlock(nextPathBlockValue);
