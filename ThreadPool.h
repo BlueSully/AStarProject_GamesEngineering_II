@@ -17,8 +17,9 @@ private:
 	int m_maxNumThreads;
 	std::deque<std::pair<int, std::function<void()>>> m_job;//deck for Jobs
 	vector<SDL_Thread *> m_threadingQueue;
+	vector<std::pair<int, bool>> m_threadWorking;
 	SDL_mutex * m_jobmutex;
-	SDL_sem *sem;
+	SDL_sem * sem;
 	int m_numberOfJobs;
 
 public:
@@ -31,8 +32,8 @@ public:
 	void createWorkers();
 	std::pair<int, std::function<void()>> doJob();
 	void createJob(std::function<void()> func);
-
-	bool jobFinished;
+	void clearjobs();
+	bool AllJobsFinished();
 };
 
 

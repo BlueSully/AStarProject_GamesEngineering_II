@@ -28,14 +28,19 @@ int ThreadPool::workerThread(void * ptr)
 {
 	ThreadPool * thr_pool = ThreadPool::getInstance();
 	int threadID = *(static_cast<int *>(ptr));
+	thr_pool->m_threadWorking.push_back(make_pair(threadID, false));
 	while (true) 
 	{
+		
 		SDL_SemWait(thr_pool->sem);
 		auto job = thr_pool->doJob();//Get Job
+		thr_pool->m_threadWorking[threadID].second = true;
 		if (job.first >= 0) 
 		{
-			printf("Job: %d running on Thread: %d \n", job.first, threadID);
+			//printf("Job: %d running on Thread: %d \n", job.first, threadID);
+			
 			job.second();
+			thr_pool->m_threadWorking[threadID].second = false;
 		}
 	}
 }
@@ -44,14 +49,7 @@ void ThreadPool::createWorkers()
 {
 	int numThreads;
 
-	//if (m_maxNumThreads > 5)
-	//{
-	//	numThreads = 5;
-	//}
-	//else
-	//{
-		numThreads = m_maxNumThreads;
-	//}
+	numThreads = m_maxNumThreads;
 
 	if (static_cast<int>(m_threadingQueue.size()) < numThreads)
 	{
@@ -91,4 +89,26 @@ void ThreadPool::createJob(std::function<void()> func)
 	m_numberOfJobs++;
 	SDL_SemPost(sem);
 	SDL_UnlockMutex(m_jobmutex);
+}
+
+void ThreadPool::clearjobs()
+{
+	if (SDL_LockMutex(m_jobmutex) == 0)
+	{
+		m_job.clear();
+		//m_numberOfJobs = 0;
+		SDL_UnlockMutex(m_jobmutex);
+	}
+}
+
+bool ThreadPool::AllJobsFinished()
+{
+	for (size_t i = 0; i < m_threadWorking.size(); i++)
+	{
+		if (m_threadWorking[i].second == true)
+		{
+			return false;
+		}
+	}
+	return true;
 }

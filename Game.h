@@ -33,6 +33,7 @@ private:
 	bool playerOnSameBlock;
 	
 	bool m_running;
+	bool m_resetting;
 
 	Grid * m_grid;
 	Player * m_player;
@@ -48,6 +49,6 @@ private:
 	SDL_Renderer* m_p_Renderer;
 
 	ThreadPool * m_threadPool;
-	SDL_mutex * mutex;
+	SDL_mutex * m_lock;
 };
 #endif

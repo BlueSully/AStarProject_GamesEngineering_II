@@ -25,7 +25,6 @@ public:
 	NodeBlock();
 	~NodeBlock();
 
-	void Update();
 	void Init(float posX, float posY, float width, float height, BlockType type, int index);
 	void initializeColour();
 	void render(Renderer* render);

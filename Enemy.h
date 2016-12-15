@@ -14,11 +14,11 @@ private:
 	Rect m_rectangle;
 	Colour m_colour;
 	Colour m_pathColour;
+
 	vector<NodeBlock *> m_path;
 	NodeBlock * curBlock;
-	bool foundPath;
+
 	int nextPathBlockValue;
-	bool calculateNewPath;
 	float elapsedTime;
 	float TimeToMove;
 public:
@@ -34,10 +34,6 @@ public:
 	int getBlockIndex() const;
 	void setBlockIndex(int value);
 	Colour getPathColour() const;
-	bool getFoundPath() const;
-	void setFoundPath(bool value);
-	bool getCalculateNewPath() const;
-	void setCalculateNewPath(bool value);
 
 	NodeBlock * getNextBlock(int currentblock);
 	void setPath(vector<NodeBlock*> value);
