@@ -4,7 +4,6 @@
 #include "SDL2/SDL.h"
 #elif defined(_WIN64) || defined(_WIN32)
 #include "SDL.h"
-#include "SDL_image.h"
 #endif
 
 #include <vector>

@@ -4,6 +4,7 @@ ThreadPool * ThreadPool::m_instance = nullptr;
 
 ThreadPool::ThreadPool()
 {
+	m_threadmutex = SDL_CreateMutex();
 	m_jobmutex = SDL_CreateMutex();
 	sem = SDL_CreateSemaphore(0);
 	m_maxNumThreads = std::thread::hardware_concurrency();

@@ -53,17 +53,6 @@ bool Renderer::init(const Size2D& winSize, const char* title)
 		return false;
 	}
 
-
-	//Initialize PNG loading
-	int imgFlags = IMG_INIT_PNG;
-	if (!(IMG_Init(imgFlags) & imgFlags))
-	{
-		cout << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << endl;
-		return false;
-	}
-
-	SDL_SetRenderDrawBlendMode(sdl_renderer, SDL_BLENDMODE_BLEND);
-	
 	return true;
 }
 

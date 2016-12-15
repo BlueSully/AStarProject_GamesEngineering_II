@@ -19,6 +19,7 @@ private:
 	vector<SDL_Thread *> m_threadingQueue;
 	vector<std::pair<int, bool>> m_threadWorking;
 	SDL_mutex * m_jobmutex;
+	SDL_mutex * m_threadmutex;
 	SDL_sem * sem;
 	int m_numberOfJobs;
 
