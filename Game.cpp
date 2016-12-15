@@ -3,7 +3,7 @@
 
 using namespace std;
 
-Game::Game() : m_running(false), playerOnSameBlock(true), m_resetting(false)
+Game::Game() : m_running(false), playerOnSameBlock(true), m_resetting(false), m_threadPool()
 {
 	m_lock = SDL_CreateMutex();
 }
@@ -216,8 +216,7 @@ void Game::Reset(int gridSize, int enemysize)
 }
 
 void Game::Update(float deltaTime)
-{
-	
+{	
 	if (m_grid->isGridInitialised() && m_grid != nullptr)
 	{		
 		int playerIndex = m_player->getBlockIndex();
@@ -249,7 +248,11 @@ void Game::Update(float deltaTime)
 				}
 				SDL_UnlockMutex(m_lock);
 			}
-			m_enemies[i]->Update(deltaTime, GameSpeed::NORMAL);
+			else 
+			{
+				m_enemies[i]->Update(deltaTime, GameSpeed::FAST);
+			}
+			
 		}	
 	}
 }

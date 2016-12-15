@@ -42,7 +42,9 @@ void Enemy::Update(float deltatime, GameSpeed speed)
 	{
 		TimeToMove = 50;
 	}
-	if (SDL_LockMutex(m_lock) == 0) {
+
+	if (SDL_LockMutex(m_lock) == 0) 
+	{
 		if (m_path.size() > 0 && elapsedTime > TimeToMove)
 		{
 			nextPathBlockValue++;

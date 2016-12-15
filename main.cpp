@@ -9,7 +9,6 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	Uint64 NOW = SDL_GetPerformanceCounter();
 	Uint64 LAST = 0;
 	float deltaTime = 0;
 	Game game;
@@ -18,10 +17,12 @@ int main(int argc, char** argv)
 
 	while (game.IsRunning())
 	{
-		LAST = NOW;
-		NOW = SDL_GetPerformanceCounter();
-
-		deltaTime = static_cast<float>((NOW - LAST) * 1000 / SDL_GetPerformanceFrequency());
+		Uint32 NOW = SDL_GetTicks();
+		if (NOW > LAST)
+		{
+			deltaTime = NOW - LAST;
+			LAST = NOW;
+		}
 		game.HandleEvents();
 		game.Update(deltaTime);
 		game.Render();
