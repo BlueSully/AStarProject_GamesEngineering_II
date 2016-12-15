@@ -36,11 +36,6 @@ void NodeBlock::initializeColour()
 	}
 }
 
-void NodeBlock::Update()
-{
-
-}
-
 void NodeBlock::render(Renderer * r)
 {
 	r->drawWorldFillRect(m_rectangle, m_colour);

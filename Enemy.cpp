@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-Enemy::Enemy() : m_blockIndex(0), calculateNewPath(true)
+Enemy::Enemy() : m_blockIndex(0)
 {
 	m_rectangle.pos.x = 0;
 	m_rectangle.pos.y = 0;
@@ -10,7 +10,7 @@ Enemy::Enemy() : m_blockIndex(0), calculateNewPath(true)
 	elapsedTime = 0;
 }
 
-Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour) : m_blockIndex(blockIndex), calculateNewPath(true)
+Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour) : m_blockIndex(blockIndex)
 {
 	m_rectangle.pos.x = position.x;
 	m_rectangle.pos.y = position.y;
@@ -30,19 +30,17 @@ void Enemy::Update(float deltatime, GameSpeed speed)
 {
 	elapsedTime += deltatime;
 
-	std::cout << elapsedTime << endl;
-	
 	if (speed == GameSpeed::SLOW)
 	{
-		TimeToMove = 1000;
+		TimeToMove = 500;
 	}
 	else if (speed == GameSpeed::NORMAL)
 	{
-		TimeToMove = 150;
+		TimeToMove = 50;
 	}
 	else if (speed == GameSpeed::FAST)
 	{
-		TimeToMove = 50;
+		TimeToMove = 5;
 	}
 
 	if (m_path.size() > 0 && elapsedTime > TimeToMove)
@@ -92,26 +90,6 @@ void Enemy::setBlockIndex(int value)
 Colour Enemy::getPathColour() const
 {
 	return m_pathColour;
-}
-
-bool Enemy::getFoundPath() const
-{
-	return foundPath;
-}
-
-void Enemy::setFoundPath(bool value)
-{
-	foundPath = value;
-}
-
-bool Enemy::getCalculateNewPath() const
-{
-	return calculateNewPath;
-}
-
-void Enemy::setCalculateNewPath(bool value)
-{
-	calculateNewPath = value;
 }
 
 void Enemy::setPath(vector<NodeBlock*> value)
