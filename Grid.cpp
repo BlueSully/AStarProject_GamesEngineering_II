@@ -425,7 +425,7 @@ vector<NodeBlock *> Grid::oldAStarAlgorithm(NodeBlock * start, NodeBlock * goal)
 				path.push_back(openNodeData[cur].prevNode);//add node to path				
 				cur = openNodeData[cur].prevNode;
 			}
-
+			
 			return path;
 		}
 

@@ -21,6 +21,8 @@ private:
 	int nextPathBlockValue;
 	float elapsedTime;
 	float TimeToMove;
+
+	SDL_mutex* m_lock;
 public:
 	Enemy();
 	Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour);

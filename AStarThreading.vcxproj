@@ -54,9 +54,9 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SDL_SDK)\lib\x86\SDL2.dll" "$(TargetDir)" /e /y /i
-xcopy "$(SDL_IMAGE_SDK)\lib\x86\libpng16-16.dll" "$(TargetDir)" /e /y /i
-xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
+      <Command>xcopy "$(ProjectDir)Resources\SDL2.dll" "$(TargetDir)" /e /y /i
+xcopy "$(ProjectDir)Resources\libpng16-16.dll" "$(TargetDir)" /e /y /i
+xcopy "$(ProjectDir)Resources\SDL2_image.dll" "$(TargetDir)" /e /y /i
 
 
 </Command>
@@ -80,9 +80,9 @@ xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
       <AdditionalLibraryDirectories>$(SDL_SDK)\lib\x86;$(SDL_IMAGE_SDK)\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(SDL_SDK)\lib\x86\SDL2.dll" "$(TargetDir)" /e /y /i
-xcopy "$(SDL_IMAGE_SDK)\lib\x86\libpng16-16.dll" "$(TargetDir)" /e /y /i
-xcopy "$(SDL_IMAGE_SDK)\lib\x86\SDL2_image.dll" "$(TargetDir)" /e /y /i
+      <Command>xcopy "$(ProjectDir)Resources\SDL2.dll" "$(TargetDir)" /e /y /i
+xcopy "$(ProjectDir)Resources\libpng16-16.dll" "$(TargetDir)" /e /y /i
+xcopy "$(ProjectDir)Resources\SDL2_image.dll" "$(TargetDir)" /e /y /i
 
 
 </Command>

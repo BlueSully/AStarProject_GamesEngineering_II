@@ -21,9 +21,9 @@ void Game::runAstar(int enemyIndex)
 	if (SDL_LockMutex(m_lock) == 0) 
 	{
 		m_enemies[enemyIndex]->setPath(path);
-		path.clear();
 		SDL_UnlockMutex(m_lock);
 	}
+	cout << "Astar finished" << endl;
 }
 
 void Game::Initialize(const char* title, int xpos, int ypos, int width, int height, int flags) 
@@ -217,7 +217,7 @@ void Game::Reset(int gridSize, int enemysize)
 
 void Game::Update(float deltaTime)
 {
-	//printf("threadSize %d\n", threadingQueue.size());
+	
 	if (m_grid->isGridInitialised() && m_grid != nullptr)
 	{		
 		int playerIndex = m_player->getBlockIndex();
@@ -234,17 +234,20 @@ void Game::Update(float deltaTime)
 		for (size_t i = 0; i < m_enemies.size(); i++)
 		{				
 			if (!playerOnSameBlock)
-			{
-				
-				for (size_t j = 0; j < m_enemies[i]->getPath().size(); j++)
+			{	
+				if (SDL_LockMutex(m_lock) == 0)
 				{
-					m_enemies[i]->getPath().clear();
-				}
+					for (size_t j = 0; j < m_enemies[i]->getPath().size(); j++)
+					{
+						m_enemies[i]->getPath().clear();
+					}
 
-				m_threadPool->clearjobs();
-				std::function<void()> func = std::bind(&Game::runAstar, this, i);//create an Astar on this enemy
-				m_threadPool->createJob(func);
-				lastPlayerBlock = m_player->getBlockIndex();
+					m_threadPool->clearjobs();
+					std::function<void()> func = std::bind(&Game::runAstar, this, i);//create an Astar on this enemy
+					m_threadPool->createJob(func);
+					lastPlayerBlock = m_player->getBlockIndex();
+				}
+				SDL_UnlockMutex(m_lock);
 			}
 			m_enemies[i]->Update(deltaTime, GameSpeed::NORMAL);
 		}	

@@ -1,6 +1,6 @@
 #include "Enemy.h"
 
-Enemy::Enemy() : m_blockIndex(0)
+Enemy::Enemy() : m_blockIndex(0), m_lock(SDL_CreateMutex())
 {
 	m_rectangle.pos.x = 0;
 	m_rectangle.pos.y = 0;
@@ -10,7 +10,7 @@ Enemy::Enemy() : m_blockIndex(0)
 	elapsedTime = 0;
 }
 
-Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour) : m_blockIndex(blockIndex)
+Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour) : m_blockIndex(blockIndex), m_lock(SDL_CreateMutex())
 {
 	m_rectangle.pos.x = position.x;
 	m_rectangle.pos.y = position.y;
@@ -23,7 +23,7 @@ Enemy::Enemy(Point2D position, Size2D bounds, int blockIndex, Colour pColour) : 
 
 Enemy::~Enemy()
 {
-
+	SDL_DestroyMutex(m_lock);
 }
 
 void Enemy::Update(float deltatime, GameSpeed speed)
@@ -36,25 +36,27 @@ void Enemy::Update(float deltatime, GameSpeed speed)
 	}
 	else if (speed == GameSpeed::NORMAL)
 	{
-		TimeToMove = 50;
+		TimeToMove = 100;
 	}
 	else if (speed == GameSpeed::FAST)
 	{
-		TimeToMove = 5;
+		TimeToMove = 50;
 	}
-
-	if (m_path.size() > 0 && elapsedTime > TimeToMove)
-	{
-		nextPathBlockValue++;
-		NodeBlock * nextBlock = getNextBlock(nextPathBlockValue);
-		if (nextBlock != nullptr)
+	if (SDL_LockMutex(m_lock) == 0) {
+		if (m_path.size() > 0 && elapsedTime > TimeToMove)
 		{
-			curBlock = nextBlock;
-			m_rectangle.pos.x = curBlock->getPosition().x;
-			m_rectangle.pos.y = curBlock->getPosition().y;
-			m_blockIndex = nextBlock->getIndex();		
+			nextPathBlockValue++;
+			NodeBlock * nextBlock = getNextBlock(nextPathBlockValue);
+			if (nextBlock != nullptr)
+			{
+				curBlock = nextBlock;
+				m_rectangle.pos.x = curBlock->getPosition().x;
+				m_rectangle.pos.y = curBlock->getPosition().y;
+				m_blockIndex = nextBlock->getIndex();
+			}
+			elapsedTime = 0;
 		}
-		elapsedTime = 0;
+		SDL_UnlockMutex(m_lock);
 	}
 }
 
@@ -106,6 +108,7 @@ vector<NodeBlock*> Enemy::getPath() const
 
 void Enemy::clearPath()
 {
+	nextPathBlockValue = 0;
 	m_path.clear();
 }
 
